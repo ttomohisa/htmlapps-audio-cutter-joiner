@@ -1,0 +1,17 @@
+{
+  "$schema": "./schemas/dependencies.schema.json",
+  "dependencies": [
+    {
+      "id": "lamejs",
+      "source": "url",
+      "version": "1.2.1",
+      "url": "https://raw.githubusercontent.com/zhuker/lamejs/260ecf8a2cf15b97e65442986c5c9149b0be7764/lame.min.js",
+      "license": "LGPL-3.0",
+      "homepage": "https://github.com/zhuker/lamejs",
+      "asset": {
+        "key": "encoder-js",
+        "mime": "text/javascript"
+      }
+    }
+  ]
+}

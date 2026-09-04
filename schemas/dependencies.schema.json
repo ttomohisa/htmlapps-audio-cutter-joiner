@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dependencies.schema.json",
+  "title": "Build-time embedded dependencies",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dependencies"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "version", "url", "license", "homepage", "asset"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "source": {"const": "url"},
+          "version": {"type": "string", "minLength": 1},
+          "url": {"type": "string", "pattern": "^https://"},
+          "license": {"type": "string", "minLength": 1},
+          "homepage": {"type": "string", "pattern": "^https://"},
+          "asset": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "mime"],
+            "properties": {
+              "key": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+              "mime": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "./schemas/dependencies-lock.schema.json",
+  "schemaVersion": 1,
+  "dependencies": [
+    {
+      "id": "lamejs",
+      "version": "1.2.1",
+      "url": "https://raw.githubusercontent.com/zhuker/lamejs/260ecf8a2cf15b97e65442986c5c9149b0be7764/lame.min.js",
+      "assetSha256": "15d285e2587b3bdbfd18a68de6ce07cc074f7480a82c3815da2dc1c348ec6df4"
+    }
+  ]
+}
