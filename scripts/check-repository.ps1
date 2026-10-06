@@ -21,4 +21,19 @@ $dist = Join-Path $Root "dist\index.html"
 $rootHtml = Join-Path $Root "audio-cutter-joiner.html"
 if (-not (Test-Path -LiteralPath $rootHtml)) { throw "Root distribution HTML was not generated." }
 if ((Get-Sha256Hex $dist) -ne (Get-Sha256Hex $rootHtml)) { throw "Root distribution HTML must match dist/index.html." }
+
+# Run the actual application script from every shipped representation with synthetic audio.
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw "Node.js 18+ is required for audio regression tests." }
+$testPaths = @((Join-Path $Root "src\index.template.html"), $rootHtml, $dist)
+if ($config.build.selfExtract.enabled) { $testPaths += (Join-Path $Root ([string]$config.build.selfExtract.output)) }
+$previousTestPath = $env:AUDIO_APP_HTML
+try {
+  foreach ($testPath in $testPaths) {
+    $env:AUDIO_APP_HTML = $testPath
+    Write-Host "[TEST] Audio editing: $testPath"
+    & node --test (Join-Path $Root "tests\audio-editing.test.cjs")
+    if ($LASTEXITCODE -ne 0) { throw "Audio editing regression tests failed: $testPath" }
+  }
+} finally { $env:AUDIO_APP_HTML = $previousTestPath }
+Write-Host "[OK] Audio editing regression tests passed." -ForegroundColor Green
 Write-Host "[OK] Repository check passed." -ForegroundColor Green

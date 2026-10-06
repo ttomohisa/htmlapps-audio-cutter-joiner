@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added Reset trim / 範囲をリセット for the selected clip, with exact split-fragment boundaries and one-step Undo.
+- Fixed stale downloadable output after adding more audio, and invalidated cached exports after successful Undo.
+- Cancelled in-flight exports when clips change, including waveform dragging, so obsolete results cannot reappear.
+- Added dependency-free synthetic-audio regression tests for source and generated HTML, including PCM16 WAV byte checks.
+
 ## 1.0.0 - 2026-09-04
 
 - Promoted Audio Cutter & Joiner to the first stable release.

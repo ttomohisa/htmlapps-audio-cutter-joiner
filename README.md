@@ -166,3 +166,13 @@ Bug reports and feature proposals are welcome through GitHub Issues. Please keep
 Copyright © 2026 ttomohisa
 
 Application code is licensed under the [MIT License](LICENSE). Third-party components retain their own licenses as described in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Reset trim and current exports
+
+- **Reset trim** restores the selected clip's original kept boundaries. A split fragment resets only within that fragment, without restoring audio outside it. The reset supports one-step Undo and does not change the source file or waveform data.
+- The control is disabled while the clip's range is unknown or already fully restored.
+- Adding audio, resetting trim, and undoing edits clear the previous export. Editing during an export cancels that attempt; export again to save the current sequence. Rejected imports and no-op edits keep a valid export.
+
+### Automated audio regressions
+
+Run `node --test tests/audio-editing.test.cjs` with Node.js 18+ for source-level checks, or run `scripts/check-repository.ps1` for the build plus checks against source, root HTML, standalone HTML, and the restored self-extract payload. Tests use synthetic AudioBuffer-compatible samples and DOM/media doubles, and inspect real WAV bytes. They do not replace browser layout, native decoder/encoder, listening, offline, or saved-file reopening checks.
