@@ -91,6 +91,8 @@ The UI may state `完全ローカル処理 / Fully local processing` only while 
 - Split at playhead creates two clips referencing the same source `File`.
 - Split fragments reuse cached source waveform peak data.
 - Delete, split, and trim changes provide one-step Undo.
+- Reset trim restores the selected clip's exact base boundaries, with one-step Undo. Split fragments restore only their own range. Unknown ranges and already-reset clips disable the action without replacing Undo.
+- Reset stops preview and preserves clip/source identity, order, source File objects and cached peaks.
 
 
 ### Joiner
@@ -137,6 +139,8 @@ Smartphone:
 ### Export
 
 - Current clip order and trim boundaries define the exported sequence.
+- Valid imports and successful Undo invalidate previous exports. Rejected imports and no-op edits preserve valid results.
+- Sequence mutations during an asynchronous export cancel that attempt so obsolete output cannot reappear. The user can export the edited sequence again.
 - Output filename is editable and sanitized before download.
 - MP3 export is available at 128 / 192 / 256 / 320 kbps using a pinned encoder embedded at build time.
 - WAV export is PCM 16-bit, 44.1 kHz stereo.
