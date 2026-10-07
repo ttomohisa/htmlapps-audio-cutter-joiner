@@ -5,7 +5,7 @@
 - Name: Audio Cutter & Joiner
 - Japanese name: 音声カット・結合
 - Repository: `ttomohisa/htmlapps-audio-cutter-joiner`
-- Current version: `v1.0.0`
+- Current version: `v1.0.1`
 
 ## Goal
 
@@ -134,7 +134,8 @@ Smartphone:
 ### Language
 
 - Japanese and English are both included.
-- Language can be switched from the header.
+- Language can be switched from the header: `EN` in Japanese and `JA` in English, with localized target-language labels and tooltips.
+- The visible header version is `vX.Y.Z` from `app.config.json`. Help and audio-control accessible labels follow the active language.
 
 ### Export
 

@@ -3,7 +3,7 @@ const vm = require('node:vm');
 const path = require('node:path');
 const { gunzipSync } = require('node:zlib');
 
-function loadApp() {
+function loadApp({ language = 'en', savedLanguage = null, storageThrows = false } = {}) {
   const filename = process.env.AUDIO_APP_HTML || path.join(__dirname, '../../src/index.template.html');
   let html = fs.readFileSync(filename, 'utf8');
   const payload = html.match(/<script id="self-extract-payload" type="application\/octet-stream">([\s\S]*?)<\/script>/);
@@ -24,19 +24,24 @@ function loadApp() {
     };
   }
   for (const match of html.matchAll(/<([a-z][a-z0-9]*)\b[^>]*\bid="([^"]+)"[^>]*>/gi)) {
-    const el = element(match[1].toUpperCase()); el.disabled = /\sdisabled\b/.test(match[0]); elements.set(match[2], el);
+    const el = element(match[1].toUpperCase());
+    for (const attr of match[0].matchAll(/([\w-]+)="([^"]*)"/g)) el.setAttribute(attr[1], attr[2]);
+    el.disabled = /\sdisabled\b/.test(match[0]); elements.set(match[2], el);
   }
   const i18nElements = [...html.matchAll(/data-i18n="([^"]+)"/g)].map(match => {
     const el = element(); el.dataset.i18n = match[1]; return el;
   });
   const document = { documentElement: {}, body: { append() {} }, getElementById(id) { return elements.get(id) || null; }, querySelectorAll(selector) { return selector === '[data-i18n]' ? i18nElements : []; }, addEventListener() {}, createElement(tag) { return element(tag.toUpperCase()); }, createTextNode(text) { return { textContent: text }; } };
-  elements.get('app-config').textContent = JSON.stringify({ name: 'Audio Cutter & Joiner', nameJa: '音声カット・結合' });
+  const canonicalConfig = JSON.parse(fs.readFileSync(path.join(__dirname, '../../app.config.json'), 'utf8'));
+  const embeddedConfig = html.match(/<script type="application\/json" id="app-config">([\s\S]*?)<\/script>/)[1];
+  const config = embeddedConfig === '__APP_CONFIG_JSON__' ? canonicalConfig : JSON.parse(embeddedConfig);
+  elements.get('app-config').textContent = JSON.stringify(config);
   elements.get('outputFormatSelect').value = 'wav'; elements.get('bitrateSelect').value = '192'; elements.get('outputNameInput').value = 'synthetic';
   const channels = [Float32Array.from({ length: 44100 }, (_, i) => i < 22050 ? .25 : .5), Float32Array.from({ length: 44100 }, (_, i) => i < 22050 ? -.25 : -.5)];
   const decoded = { duration: 1, sampleRate: 44100, numberOfChannels: 2, length: 44100, getChannelData(c) { return channels[c]; } };
   const originalSamples = channels.map(c => Buffer.from(c.buffer).toString('hex'));
   class FakeAudioContext { async decodeAudioData() { const pending = nextDecode; nextDecode = null; return pending ? pending() : decoded; } async close() {} }
-  const context = vm.createContext({ document, window: { AudioContext: FakeAudioContext, addEventListener() {} }, navigator: { language: 'en' }, localStorage: { getItem() { return null; }, setItem() {} }, innerWidth: 1024, devicePixelRatio: 1, crypto: { randomUUID: () => `id-${++serial}` }, requestAnimationFrame: () => 0, cancelAnimationFrame() {}, setTimeout(fn, delay) { if (delay === 0) queueMicrotask(fn); return 1; }, clearTimeout() {}, Blob, DOMException, Float32Array, Uint8Array, Int16Array, ArrayBuffer, DataView, console: { error(e) { errors.push(e); }, warn(e) { errors.push(e); } }, URL: { createObjectURL(value) { const url = `blob:synthetic-${++serial}`; urls.set(url, value); return url; }, revokeObjectURL(url) { revoked.push(url); urls.delete(url); } } });
+  const context = vm.createContext({ document, window: { AudioContext: FakeAudioContext, addEventListener() {} }, navigator: { language }, localStorage: { getItem() { if (storageThrows) throw new Error('storage unavailable'); return savedLanguage; }, setItem() { if (storageThrows) throw new Error('storage unavailable'); } }, innerWidth: 1024, devicePixelRatio: 1, crypto: { randomUUID: () => `id-${++serial}` }, requestAnimationFrame: () => 0, cancelAnimationFrame() {}, setTimeout(fn, delay) { if (delay === 0) queueMicrotask(fn); return 1; }, clearTimeout() {}, Blob, DOMException, Float32Array, Uint8Array, Int16Array, ArrayBuffer, DataView, console: { error(e) { errors.push(e); }, warn(e) { errors.push(e); } }, URL: { createObjectURL(value) { const url = `blob:synthetic-${++serial}`; urls.set(url, value); return url; }, revokeObjectURL(url) { revoked.push(url); urls.delete(url); } } });
   const expose = 'globalThis.app={state,els,I18N,addFiles,setTrimRange,splitAtPlayhead,undoLast,moveClip,reorderClip,removeClip,startExport,exportWav,downloadExport,totalKeptDuration,applyLanguage,selectClip,renderSelectedMeta,cancelExport,startSequence,buildAllSegments,buildJunctionSegments,segmentBounds,resetTrim:typeof resetTrim==="function"?resetTrim:null};';
   vm.runInContext(script.replace('  })();', expose + '\n  })();'), context, { filename });
   const app = context.app;
@@ -52,6 +57,6 @@ function loadApp() {
     nextDecode = () => { started(); return pending; };
     return { begun, resolve: () => resolve(decoded), reject };
   }
-  return { app, html, filename, channels, originalSamples, seed, file, urls, revoked, downloads, errors, i18nElements, delayDecode };
+  return { app, html, filename, config, canonicalConfig, elements, channels, originalSamples, seed, file, urls, revoked, downloads, errors, i18nElements, delayDecode };
 }
 module.exports = { loadApp };

@@ -328,12 +328,12 @@
           <svg class="icon" viewBox="0 0 24 24"><path d="M2 12h3l2-5 3 10 3-13 3 16 3-10 2 2h1"/></svg>
         </div>
         <div class="brand-copy">
-          <p class="brand-name"><span data-i18n="appName">音声カット・結合</span><span class="version-badge">v1.0.0</span></p>
+          <p class="brand-name"><span data-i18n="appName">音声カット・結合</span><span class="version-badge" id="versionBadge">v1.0.1</span></p>
           <p class="brand-meta" data-i18n="tagline">音声を切って、並べて、つなぐ</p>
         </div>
       </div>
       <div class="header-actions">
-        <button class="language-button" id="languageButton" type="button" aria-label="Switch language"><span id="languageLabel">EN</span></button>
+        <button class="language-button" id="languageButton" type="button" aria-label="英語に切り替え" title="英語に切り替え"><span id="languageLabel">EN</span></button>
         <button class="icon-button header-icon-button" id="helpButton" type="button" aria-label="ヘルプ" title="ヘルプ"><svg class="icon"><use href="#i-help"/></svg></button>
       </div>
     </div>
@@ -516,7 +516,7 @@
     const config=JSON.parse(document.getElementById('app-config').textContent);
     const I18N={
       ja:{
-        appName:'音声カット・結合',tagline:'音声を切って、並べて、つなぐ',help:'ヘルプ',introTitle:'音声を切って、並べて、つなぐ',workspaceTitle:'音声を編集',workspaceBody:'クリップを切り、並べ替え、完成順に試聴します。',footerName:'Audio Cutter & Joiner',
+        appName:'音声カット・結合',tagline:'音声を切って、並べて、つなぐ',help:'ヘルプ',languageSwitch:'英語に切り替え',close:'閉じる',playbackPosition:'再生位置',stop:'停止',introTitle:'音声を切って、並べて、つなぐ',workspaceTitle:'音声を編集',workspaceBody:'クリップを切り、並べ替え、完成順に試聴します。',footerName:'Audio Cutter & Joiner',
         intro:'音声ファイルを追加し、必要な範囲だけ残して好きな順番に並べ、完成順に連続試聴できます。編集は元ファイルを書き換えずブラウザ内で保持します。',local:'完全ローカル処理',clips:'クリップ',clipsSub:'上から順に1本の音声として扱います',dropTitle:'音声を追加',dropCopy:'ファイルを選択するか、ここにドロップ',chooseFiles:'音声を選択',addMore:'追加',
         preview:'カットと分割',previewShort:'編集',previewSub:'範囲を調整して分割します',emptyTitle:'音声を選択してください',emptyCopy:'追加したクリップを選ぶと、ここに波形と編集操作が表示されます。',analyzing:'波形を準備中',waveform:'波形',seekHint:'クリック / タップで再生位置を移動・左右ハンドルをドラッグ',waveWaiting:'波形を準備しています…',waveErrorTitle:'波形を作成できませんでした',
         trimTitle:'使用する範囲',trimCopy:'波形の左右ハンドルまたは時刻入力で調整します',trimStart:'開始',trimEnd:'終了',setStart:'現在位置を開始に',setEnd:'現在位置を終了に',resetTrim:'範囲をリセット',trimReset:'使用する範囲をリセットしました',resetTrimHelp:'「範囲をリセット」で選択中のクリップの使用範囲を戻せます。分割したクリップは、その区間内だけを復元します。リセットは「元に戻す」で取り消せます。',trimTip:'開始・終了位置は元の音声を書き換えず、編集情報として保持します。',selectedLength:'使用 {time}',previewSelection:'選択範囲を再生',previewJunction:'次とのつなぎ目を確認',splitHere:'ここで分割',splitAt:'分割位置 {time}',
@@ -528,7 +528,7 @@
         clipsCount:'{count}件',remove:'削除',removed:'「{name}」を削除しました',invalid:'音声ファイルを選択してください。',loadFailed:'この音声を読み込めませんでした。対応形式を確認してください。',waveFailed:'ブラウザの音声デコード機能でこのファイルを解析できませんでした。再生できる場合でも波形を作成できないことがあります。',mono:'モノラル',stereo:'ステレオ',channelsN:'{count} ch',part:'区間',trimChanged:'使用する範囲を変更しました',trimInvalid:'開始位置は終了位置より前になるように指定してください。',splitDone:'クリップを2つに分割しました',splitInvalid:'開始・終了位置から少し離れた場所で分割してください。',undoDelete:'削除を元に戻しました',undoSplit:'分割を元に戻しました',undoTrim:'範囲変更を元に戻しました'
       },
       en:{
-        appName:'Audio Cutter & Joiner',tagline:'Trim, arrange, and join audio',help:'Help',introTitle:'Trim, arrange, and join audio',workspaceTitle:'Edit audio',workspaceBody:'Trim clips, reorder them, and preview the finished sequence.',footerName:'Audio Cutter & Joiner',
+        appName:'Audio Cutter & Joiner',tagline:'Trim, arrange, and join audio',help:'Help',languageSwitch:'Switch to Japanese',close:'Close',playbackPosition:'Playback position',stop:'Stop',introTitle:'Trim, arrange, and join audio',workspaceTitle:'Edit audio',workspaceBody:'Trim clips, reorder them, and preview the finished sequence.',footerName:'Audio Cutter & Joiner',
         intro:'Add audio files, keep only the parts you need, arrange them in any order, and preview the full sequence. Edits stay non-destructive and local to the browser.',local:'Fully local processing',clips:'Clips',clipsSub:'The list plays from top to bottom',dropTitle:'Add audio',dropCopy:'Choose files or drop them here',chooseFiles:'Choose audio',addMore:'Add',
         preview:'Trim & split',previewShort:'Edit',previewSub:'Adjust the range and split clips',emptyTitle:'Choose an audio clip',emptyCopy:'Select an added clip to show its waveform and editing controls here.',analyzing:'Preparing waveform',waveform:'Waveform',seekHint:'Click / tap to move the playhead · drag the left/right handles',waveWaiting:'Preparing waveform…',waveErrorTitle:'Could not create the waveform',
         trimTitle:'Keep range',trimCopy:'Adjust with the waveform handles or precise time fields',trimStart:'Start',trimEnd:'End',setStart:'Set start to playhead',setEnd:'Set end to playhead',resetTrim:'Reset trim',trimReset:'Reset the kept range',resetTrimHelp:'Reset trim restores the selected clip’s full range. For a split fragment, it restores only that fragment’s range. Undo restores the previous trim.',trimTip:'Start and end positions are stored as edit data. The original audio file is not modified.',selectedLength:'Keep {time}',previewSelection:'Preview selection',previewJunction:'Preview next junction',splitHere:'Split here',splitAt:'Split at {time}',
@@ -552,7 +552,7 @@
       sequenceSummary:$('sequenceSummary'),previewAllButton:$('previewAllButton'),previewAllLabel:$('previewAllLabel'),previewAllIcon:$('previewAllIcon'),
       editorEmpty:$('editorEmpty'),editorShell:$('editorShell'),currentName:$('currentName'),currentMeta:$('currentMeta'),analysisState:$('analysisState'),waveCanvas:$('waveCanvas'),waveOverlay:$('waveOverlay'),waveError:$('waveError'),waveErrorText:$('waveErrorText'),
       audio:$('audio'),sequenceAudio:$('sequenceAudio'),playButton:$('playButton'),playUse:$('playUse'),stopButton:$('stopButton'),seekRange:$('seekRange'),currentTime:$('currentTime'),durationTime:$('durationTime'),trimStartInput:$('trimStartInput'),trimEndInput:$('trimEndInput'),trimLength:$('trimLength'),setStartButton:$('setStartButton'),setEndButton:$('setEndButton'),resetTrimButton:$('resetTrimButton'),previewSelectionButton:$('previewSelectionButton'),previewJunctionButton:$('previewJunctionButton'),splitButton:$('splitButton'),splitPosition:$('splitPosition'),
-      infoDuration:$('infoDuration'),infoSize:$('infoSize'),infoRate:$('infoRate'),infoChannels:$('infoChannels'),toast:$('toast'),toastMessage:$('toastMessage'),toastAction:$('toastAction'),helpDialog:$('helpDialog'),helpButton:$('helpButton'),helpClose:$('helpClose'),languageButton:$('languageButton'),languageLabel:$('languageLabel'),clipsCard:$('clipsCard'),editorCard:$('editorCard'),exportCard:$('exportCard'),
+      infoDuration:$('infoDuration'),infoSize:$('infoSize'),infoRate:$('infoRate'),infoChannels:$('infoChannels'),toast:$('toast'),toastMessage:$('toastMessage'),toastAction:$('toastAction'),helpDialog:$('helpDialog'),helpButton:$('helpButton'),helpClose:$('helpClose'),languageButton:$('languageButton'),languageLabel:$('languageLabel'),versionBadge:$('versionBadge'),clipsCard:$('clipsCard'),editorCard:$('editorCard'),exportCard:$('exportCard'),
       outputNameInput:$('outputNameInput'),outputFormatSelect:$('outputFormatSelect'),bitrateField:$('bitrateField'),bitrateSelect:$('bitrateSelect'),exportSupportNote:$('exportSupportNote'),exportButton:$('exportButton'),exportSummaryMain:$('exportSummaryMain'),exportSummaryTime:$('exportSummaryTime'),exportProgress:$('exportProgress'),exportProgressTitle:$('exportProgressTitle'),exportProgressPercent:$('exportProgressPercent'),exportProgressFill:$('exportProgressFill'),exportCancelButton:$('exportCancelButton'),exportResult:$('exportResult'),exportResultName:$('exportResultName'),exportResultMeta:$('exportResultMeta'),downloadButton:$('downloadButton'),exportError:$('exportError')
     };
 
@@ -564,6 +564,10 @@
     function applyLanguage(lang){
       state.lang=lang;document.documentElement.lang=lang;storageSet('audio-cutter-joiner-language',lang);
       document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.dataset.i18n);});
+      els.versionBadge.textContent=`v${config.version}`;
+      els.languageButton.setAttribute('aria-label',t('languageSwitch'));els.languageButton.title=t('languageSwitch');
+      els.helpButton.title=t('help');els.helpClose.setAttribute('aria-label',t('close'));els.helpClose.title=t('close');
+      els.waveCanvas.setAttribute('aria-label',t('waveform'));els.playButton.setAttribute('aria-label',t('keyPlay'));els.seekRange.setAttribute('aria-label',t('playbackPosition'));els.stopButton.setAttribute('aria-label',t('stop'));
       els.languageLabel.textContent=lang==='ja'?'EN':'JA';els.helpButton.setAttribute('aria-label',t('help'));els.fileInput.setAttribute('aria-label',t('chooseFiles'));els.trimStartInput.setAttribute('aria-label',t('trimStart'));els.trimEndInput.setAttribute('aria-label',t('trimEnd'));document.title=lang==='ja'?config.nameJa:config.name;
       renderClips();renderSelectedMeta();renderSequenceSummary();updateSequenceUi();renderExportUi();
     }

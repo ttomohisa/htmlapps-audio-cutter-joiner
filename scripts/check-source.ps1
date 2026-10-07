@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 $Source = Join-Path $Root "src\index.template.html"
 if (-not (Test-Path -LiteralPath $Source)) { throw "Missing src/index.template.html" }

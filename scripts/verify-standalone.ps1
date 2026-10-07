@@ -17,7 +17,9 @@ if ($content -match '<iframe\b') { $errors.Add("iframe is not allowed.") }
 if ($RequireNetworkBlock -and $content -notmatch "connect-src\s+'none'") { $errors.Add("CSP must include connect-src 'none'.") }
 if ($content -match "(?<!wasm-)'unsafe-eval'") { $errors.Add("Broad JavaScript unsafe-eval is not allowed.") }
 if ($content -match '\bfetch\s*\(|XMLHttpRequest|new\s+WebSocket\s*\(|new\s+EventSource\s*\(') { $errors.Add("Runtime network API usage found in source.") }
-if ($content -notmatch 'v1\.0\.0') { $errors.Add("v1.0.0 marker is missing.") }
+$config = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path (Split-Path -Parent $PSScriptRoot) "app.config.json") | ConvertFrom-Json
+$versionBadge = '<span class="version-badge" id="versionBadge">v' + [string]$config.version + '</span>'
+if (-not $content.Contains($versionBadge)) { $errors.Add("Visible version badge does not match app.config.json.") }
 if ($content -notmatch 'Audio Cutter &amp; Joiner|Audio Cutter & Joiner') { $errors.Add("Application name is missing.") }
 if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "Standalone verification failed with $($errors.Count) error(s)." }
 Write-Host "[OK] Standalone verification passed: $fullPath" -ForegroundColor Green

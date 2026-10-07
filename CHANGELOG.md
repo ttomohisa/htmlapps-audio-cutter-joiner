@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 1.0.1 - 2026-10-07
+
+- Standardized header language targets and localized their accessible labels/tooltips, Help controls, and audio-control labels.
+- Bound the visible `vX.Y.Z` header badge to the canonical app version without changing layout or local-processing copy.
+- Added header regression coverage across source, readable, self-extract, and root public builds.
 
 - Added Reset trim / 範囲をリセット for the selected clip, with exact split-fragment boundaries and one-step Undo.
 - Fixed stale downloadable output after adding more audio, and invalidated cached exports after successful Undo.
