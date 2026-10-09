@@ -1,5 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Audio Cutter &amp; Joiner">
-  <rect width="64" height="64" rx="14" fill="#16624F"/>
-  <path d="M10 34h5l3-11 5 22 5-30 5 38 5-29 4 18 4-8h8" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M48 18l-8 8m8 0-8-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<rect x="2.67" y="2.67" width="58.66" height="58.66" rx="14.665" fill="#0a6a55"/>
+<g fill="none" stroke="#fcfcfc" stroke-linecap="round">
+<path stroke-width="2.3" d="M7.55 29.05v2.95m3.15-5.45v8m3.3-11v13.05m9.75-12.05v11.7m21.1-10.05v8.65m3.5-13.25v17.2m3.4-12.6v8.9"/>
+<path stroke-width="1.55" d="M18.4 19.45v2.25m0 1.65v2.25m0 1.65v2.2m0 1.65v2.2m0 1.65v2.4M21 28v5.6m5.7-5.65v6.25m2.6-4.55v2.35m12.4-2.35V32m13.1-4v5.6m2.7-3.95V32"/>
+<path stroke-width="1.6" stroke-linejoin="round" d="M33.05 31.25h4.45m-1.45-2.15 2.15 2.15-2.15 2.15"/>
+<path stroke-width=".8" d="m15.35 39.05 5.8 7.05m.2-7.05-5.8 7.05"/>
+<circle cx="15.05" cy="46.3" r="1.15" stroke-width=".7"/>
+<circle cx="21.35" cy="46.3" r="1.15" stroke-width=".7"/>
+</g>
 </svg>
