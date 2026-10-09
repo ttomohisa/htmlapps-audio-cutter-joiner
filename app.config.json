@@ -3,7 +3,7 @@
   "name": "Audio Cutter & Joiner",
   "nameJa": "音声カット・結合",
   "slug": "audio-cutter-joiner",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Trim, split, reorder, preview, and export multiple audio clips locally as MP3, M4A/AAC, or WAV.",
   "descriptionJa": "音声をカット・分割・並べ替えし、完成順に試聴してMP3・M4A/AAC・WAVとして書き出せます。ファイルは外部へ送信しません。",
   "defaultLanguage": "auto",

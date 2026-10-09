@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2 - 2026-10-09
+
+- Refresh the app icon and favicon with the supplied SVG artwork, preserving the original viewBox and standalone/offline behavior.
+- Add icon consistency coverage for the canonical asset, header, and favicon.
+
 ## 1.0.1 - 2026-10-07
 
 - Standardized header language targets and localized their accessible labels/tooltips, Help controls, and audio-control labels.

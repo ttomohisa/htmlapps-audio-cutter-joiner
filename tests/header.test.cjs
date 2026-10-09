@@ -48,3 +48,24 @@ test('language toggles preserve selected clip, trim, output filename and valid W
   assert.equal(h.app.state.exportResult, result); assert.equal(h.app.els.outputNameInput.value, filename);
   assert.equal(h.revoked.includes(result.url), false);
 });
+
+// Keep the supplied artwork, favicon, and header in sync across shipped representations.
+test('app icon preserves the supplied SVG and canonical header/favicon artwork', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const crypto = require('node:crypto');
+  const icon = fs.readFileSync(path.join(__dirname, '../assets/favicon.svg'));
+  assert.equal(crypto.createHash('sha256').update(icon).digest('hex'), '4cbea3c8f18eb19dd7375c1c5f410171b23663639c7953fb3fedb14ced8b4062');
+  const html = loadApp().html;
+  const favicon = html.match(/<link\b[^>]*rel="icon"[^>]*href="([^"]+)"/)[1];
+  const expectedUri = 'data:image/svg+xml;base64,' + icon.toString('base64');
+  assert.equal(favicon, expectedUri);
+  const header = html.match(/<div class="brand-mark"[^>]*>\s*(<svg[\s\S]*?<\/svg>)/)[1];
+  assert.equal(header, icon.toString('utf8').trim());
+  const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
+  assert.equal(new Set(ids).size, ids.length, 'Inline SVG IDs must not collide with page IDs');
+  for (const match of header.matchAll(/href="#([^"]+)"/g)) {
+    assert.ok(ids.includes(match[1]), `Missing inline SVG reference: ${match[1]}`);
+  }
+  assert.match(html, /\.brand-mark svg \{ width: 100%; height: 100%; display: block; \}/);
+});
