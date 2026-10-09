@@ -5,7 +5,7 @@
 - Name: Audio Cutter & Joiner
 - Japanese name: 音声カット・結合
 - Repository: `ttomohisa/htmlapps-audio-cutter-joiner`
-- Current version: `v1.0.2`
+- Current version: `v1.0.3`
 
 ## Goal
 

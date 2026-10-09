@@ -55,7 +55,7 @@ test('app icon preserves the supplied SVG and canonical header/favicon artwork',
   const path = require('node:path');
   const crypto = require('node:crypto');
   const icon = fs.readFileSync(path.join(__dirname, '../assets/favicon.svg'));
-  assert.equal(crypto.createHash('sha256').update(icon).digest('hex'), '4cbea3c8f18eb19dd7375c1c5f410171b23663639c7953fb3fedb14ced8b4062');
+  assert.equal(crypto.createHash('sha256').update(icon).digest('hex'), '92933e28383d9413b48da97183fc7a7aededc8e708dea491c4c66cacc420e631');
   const html = loadApp().html;
   const favicon = html.match(/<link\b[^>]*rel="icon"[^>]*href="([^"]+)"/)[1];
   const expectedUri = 'data:image/svg+xml;base64,' + icon.toString('base64');
