@@ -65,6 +65,8 @@ Python, Node.js, and a local web server are not required for the Windows build.
 | `←` | Seek back 5 seconds |
 | `→` | Seek forward 5 seconds |
 
+Use Tab to reach clip rows and their Up, Down, and Remove buttons; Enter or Space selects the row or activates the focused button. Reordering retains the same clip action when enabled, otherwise its row. Removing a clip moves focus to a surviving neighbor or the visible empty-state picker. Undo returns focus to the restored clip action when available. On mobile, existing Edit navigation is preserved and the current tab is used when the clip list is hidden. A newer focused control, modal, or edit keeps ownership during asynchronous Undo.
+
 ## Format support
 
 ### Input
@@ -169,10 +171,15 @@ Application code is licensed under the [MIT License](LICENSE). Third-party compo
 
 ## Reset trim and current exports
 
-- **Reset trim** restores the selected clip's original kept boundaries. A split fragment resets only within that fragment, without restoring audio outside it. The reset supports one-step Undo and does not change the source file or waveform data.
+- **Reset trim** restores the selected clip's original kept boundaries. A split fragment resets only within that fragment, without restoring audio outside it. The reset supports one-step Undo and does not change the source file or waveform data. When Reset held focus, a successful reset moves it to the visible Start field or current mobile tab, without changing pages or taking focus from another control or modal.
 - The control is disabled while the clip's range is unknown or already fully restored.
 - Adding audio, resetting trim, and undoing edits clear the previous export. Editing during an export cancels that attempt; export again to save the current sequence. Rejected imports and no-op edits keep a valid export.
+- The whole-second sequence summary first rounds to millisecond precision, so a one-sample shortfall near a second boundary does not show an extra second less. Genuine fractional seconds still truncate; exact trim ranges, playback, and export are unchanged.
+
+### Help and narrow screens
+
+Help keeps its Close button visible while its text scrolls inside the available viewport. The background page is locked only while Help is open; Close, Escape, or a backdrop click dismisses it. On narrow screens, the title/version can wrap, and keyboard focus scrolling reserves room for the header and bottom tabs. The shield beside “Fully local processing” is decorative; audio still stays in the browser.
 
 ### Automated audio regressions
 
-Run `node --test tests/audio-editing.test.cjs` with Node.js 18+ for source-level checks, or run `scripts/check-repository.ps1` for the build plus checks against source, root HTML, standalone HTML, and the restored self-extract payload. Tests use synthetic AudioBuffer-compatible samples and DOM/media doubles, and inspect real WAV bytes. They do not replace browser layout, native decoder/encoder, listening, offline, or saved-file reopening checks.
+Run `node --test tests/audio-editing.test.cjs tests/header.test.cjs tests/layout.test.cjs` with Node.js 18+ for source-level checks, or run `scripts/check-repository.ps1` for the build plus checks against source, root HTML, standalone HTML, and the restored self-extract payload. Tests use synthetic AudioBuffer-compatible samples and DOM/media doubles, and inspect real WAV bytes. Layout checks assert the CSS/markup contracts, not rendered geometry. Clip-focus checks model DOM connectivity, visible/enabled targets, and the original event bubbling path; they do not prove native keyboard behavior or on-screen focus visibility. Manually check Help wheel/keyboard scrolling and dismissal, title/version visibility, and Tab navigation through File name, Format, and Quality above the mobile tabs at narrow/short sizes in both languages. Also verify focused Reset returning to Start or the visible current tab, near-second sequence totals, loaded clip Enter/Space activation, repeated reorder including boundaries, Remove/Undo, empty-state focus, and mobile current-tab fallback without stealing newer focus or modal ownership. They do not replace browser layout, native decoder/encoder, listening, offline, or saved-file reopening checks.

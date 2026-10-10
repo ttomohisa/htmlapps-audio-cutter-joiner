@@ -31,7 +31,7 @@ try {
   foreach ($testPath in $testPaths) {
     $env:AUDIO_APP_HTML = $testPath
     Write-Host "[TEST] Audio editing: $testPath"
-    & node --test (Join-Path $Root "tests\audio-editing.test.cjs") (Join-Path $Root "tests\header.test.cjs")
+    & node --test (Join-Path $Root "tests\audio-editing.test.cjs") (Join-Path $Root "tests\header.test.cjs") (Join-Path $Root "tests\layout.test.cjs")
     if ($LASTEXITCODE -ne 0) { throw "Audio editing regression tests failed: $testPath" }
   }
 } finally { $env:AUDIO_APP_HTML = $previousTestPath }

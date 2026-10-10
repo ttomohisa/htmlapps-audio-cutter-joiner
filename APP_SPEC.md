@@ -5,7 +5,7 @@
 - Name: Audio Cutter & Joiner
 - Japanese name: 音声カット・結合
 - Repository: `ttomohisa/htmlapps-audio-cutter-joiner`
-- Current version: `v1.0.3`
+- Current version: `v1.0.4`
 
 ## Goal
 
@@ -65,6 +65,9 @@ The UI may state `完全ローカル処理 / Fully local processing` only while 
 - Selecting a clip updates the preview.
 - Removing a clip offers Undo.
 - Deleting the selected clip safely selects an adjacent clip when available.
+- Enter / Space on a clip row selects that row; descendant buttons retain native activation.
+- Re-rendering and reordering preserve the logical clip action when enabled, with the same row as a boundary fallback. Remove and Undo use a surviving/restored clip or visible empty-state/current-tab target.
+- Focus restoration preserves existing mobile navigation and does not reclaim focus from a newer user action, modal, edit, or selection during asynchronous Undo.
 
 ### Waveform
 
@@ -93,6 +96,7 @@ The UI may state `完全ローカル処理 / Fully local processing` only while 
 - Delete, split, and trim changes provide one-step Undo.
 - Reset trim restores the selected clip's exact base boundaries, with one-step Undo. Split fragments restore only their own range. Unknown ranges and already-reset clips disable the action without replacing Undo.
 - Reset stops preview and preserves clip/source identity, order, source File objects and cached peaks.
+- Successful Reset returns focus from its now-disabled button to the visible Start field or current mobile tab without changing pages. Unrelated or newer focus and modal ownership are preserved; no-op Reset does not move focus.
 
 
 ### Joiner
@@ -104,7 +108,7 @@ The UI may state `完全ローカル処理 / Fully local processing` only while 
 - Sequence preview plays every clip in the current list order and respects each kept range.
 - Junction preview plays approximately the final 2 seconds of the selected clip followed by the first 2 seconds of the next clip.
 - Starting another edit or preview stops sequence playback so two audio elements do not play at once.
-- Total sequence duration is shown when duration metadata is available for all clips.
+- Total sequence duration is shown when duration metadata is available for all clips. Its whole-second summary rounds the total to millisecond display precision before truncating seconds, avoiding one-sample boundary undercounts without changing exact ranges, playback timing, or export.
 
 ### File information
 
@@ -127,9 +131,18 @@ Smartphone:
 
 - fixed bottom tabs for Clips, Edit, and Export
 - no horizontal scroll
-- no fixed UI covering the active content
+- no fixed UI covering the active content, including keyboard-focused export controls
+- the narrow header wraps the title/version as needed while keeping language and Help actions visible
 - selecting a clip moves to Waveform view
 - controls remain large enough for touch
+
+### Help dialog
+
+- Opening modal Help locks background page scrolling only while the modal remains open.
+- The dialog fits the safe-area viewport; its header and Close button stay visible while only the text body scrolls.
+- Wheel and keyboard scrolling can reach the last Help paragraph on narrow and short screens.
+- Close, Escape, and backdrop dismissal retain native dialog focus behavior.
+- The local-processing claim has a decorative shield; the app artwork and favicon stay unchanged.
 
 ### Language
 

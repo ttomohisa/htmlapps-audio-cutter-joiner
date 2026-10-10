@@ -38,6 +38,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
       font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
     }
+    html:has(dialog:modal), body:has(dialog:modal) { overflow: hidden; }
     button, input { font: inherit; }
     button { color: inherit; }
     button:disabled { cursor: not-allowed; opacity: .45; }
@@ -218,6 +219,11 @@
     .dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
     .dialog-header h2 { margin: 0; font-size: 17px; }
     .dialog-body { padding: 20px 20px 28px; overflow: auto; max-height: calc(100dvh - 102px); }
+    #helpDialog { max-height: min(760px, calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom))); }
+    #helpDialog[open] { display: flex; flex-direction: column; }
+    #helpDialog > .dialog-header { flex: 0 0 auto; }
+    #helpClose { flex: 0 0 auto; }
+    #helpDialog > .dialog-body { flex: 1 1 auto; min-height: 0; max-height: none; overflow: auto; overscroll-behavior: contain; }
     .dialog-body h3 { margin: 25px 0 8px; padding-top: 19px; border-top: 1px solid color-mix(in srgb, var(--line) 78%, transparent); font-size: 14px; }
     .dialog-body h3:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
     .dialog-body p, .dialog-body li { color: var(--muted); font-size: 13px; line-height: 1.7; }
@@ -241,6 +247,7 @@
     }
     @media (max-width: 720px) {
       :root { --header-height: 58px; }
+      html { scroll-padding-top: calc(var(--header-height) + 12px); scroll-padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
       .header-inner { padding-block: 8px; }
       .brand-mark { width: 34px; height: 34px; border-radius:25%; }
       .brand-name { font-size: 15px; }
@@ -289,6 +296,14 @@
       .dialog-header { padding: 14px 18px 12px; }
       .dialog-body { padding: 12px 18px calc(env(safe-area-inset-bottom) + 18px); max-height: calc(100dvh - 66px); }
     }
+    @media (max-width: 420px) {
+      .header-inner { gap: 10px; }
+      .brand { flex: 1 1 auto; }
+      .brand-name { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 7px; white-space: normal; overflow: visible; }
+      .brand-name > [data-i18n="appName"] { min-width: 0; overflow-wrap: anywhere; }
+      .version-badge { flex: 0 0 auto; margin-left: 0; white-space: nowrap; }
+      .header-actions { flex: 0 0 auto; }
+    }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
@@ -297,7 +312,7 @@
 <body>
   <svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
     <symbol id="i-folder-plus" viewBox="0 0 24 24"><path d="M3.5 6.5h6l2 2h9v9.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6.5Z"/><path d="M12 11.5v5M9.5 14h5"/></symbol>
-    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8.5 10V7a3.5 3.5 0 0 1 7 0v3"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8 7 10 4.2-2 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-5"/></symbol>
     <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 1 1 3.6 2.1c-.9.5-1.4 1-1.4 2"/><path d="M12 17h.01"/></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
     <symbol id="i-audio" viewBox="0 0 24 24"><path d="M3 13h3l2-6 3 12 3-14 3 11 2-5h2"/></symbol>
@@ -338,7 +353,7 @@
 </svg>
         </div>
         <div class="brand-copy">
-          <p class="brand-name"><span data-i18n="appName">音声カット・結合</span><span class="version-badge" id="versionBadge">v1.0.3</span></p>
+          <p class="brand-name"><span data-i18n="appName">音声カット・結合</span><span class="version-badge" id="versionBadge">v1.0.4</span></p>
           <p class="brand-meta" data-i18n="tagline">音声を切って、並べて、つなぐ</p>
         </div>
       </div>
@@ -355,7 +370,7 @@
         <h2 id="heroTitle" data-i18n="introTitle">音声を切って、並べて、つなぐ</h2>
         <p data-i18n="intro">音声ファイルを追加し、必要な範囲だけ残して好きな順番に並べ、完成順に連続試聴できます。編集は元ファイルを書き換えずブラウザ内で保持します。</p>
       </div>
-      <div class="local-badge"><svg class="icon"><use href="#i-lock"/></svg><span data-i18n="local">完全ローカル処理</span></div>
+      <div class="local-badge"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-shield"/></svg><span data-i18n="local">完全ローカル処理</span></div>
     </section>
 
     <section class="workspace" aria-labelledby="workspaceTitle">
@@ -510,6 +525,8 @@
       <p class="dialog-note" data-i18n="privacyCopy">読み込んだ音声は外部サーバーへ送信しません。波形作成と再生はブラウザ内で行い、実行時の外部通信はCSPで遮断しています。</p>
       <h3 data-i18n="keyboardTitle">キーボード</h3>
       <p><span class="kbd">Space</span> <span data-i18n="keyPlay">再生 / 一時停止</span> &nbsp; <span class="kbd">←</span> <span class="kbd">→</span> <span data-i18n="keySeek">5秒移動</span></p>
+      <p data-i18n="clipKeyboardHelp">クリップ行はEnterまたはSpaceで選択できます。上下・削除ボタンはTabで移動し、EnterまたはSpaceで操作できます。並べ替え・削除・元に戻すの後も、表示中のクリップ操作・音声選択・現在のタブへフォーカスを戻します。</p>
+      <p data-i18n="helpScroll">画面が小さい場合はヘルプの本文内をスクロールしてください。閉じるボタンは上部に残ります。Escキーでも閉じられます。</p>
     </div>
   </dialog>
 
@@ -533,7 +550,7 @@
         duration:'使用する長さ',size:'元ファイル',sampleRate:'サンプルレート',channels:'チャンネル',undo:'元に戻す',sequenceTitle:'完成順を試聴',previewAll:'最初から試聴',stopPreview:'試聴を停止',sequenceSummary:'{count}件 · 合計 {time}',sequenceSummaryPending:'{count}件 · 長さは試聴時に確認',sequencePlaying:'{current} / {count} · {name}',junctionPlaying:'つなぎ目を確認中 · {name}',previewFinished:'全体の試聴が終わりました',junctionFinished:'つなぎ目の確認が終わりました',
         moveUp:'上へ移動',moveDown:'下へ移動',dragToReorder:'ドラッグして並べ替え',reordered:'クリップを並べ替えました',undoReorder:'並べ替えを元に戻しました',
         exportTitle:'書き出し',exportShort:'書き出し',exportSub:'編集した順番で1つの音声ファイルにします',exportSummaryFormat:'44.1 kHz · ステレオ',outputName:'ファイル名',outputFormat:'形式',outputQuality:'音質',exportNote:'MP3とWAVはこのHTMLだけで書き出せます。M4AはブラウザがAAC書き出しに対応している場合に利用できます。',exportM4aUnavailable:'このブラウザではM4A / AACの書き出しを利用できません。MP3またはWAVを選んでください。',exportButton:'音声を書き出す',exportPreparing:'音声を準備しています',exportEncoding:'音声を書き出しています',exportFinishing:'ファイルを仕上げています',cancelExport:'キャンセル',exportCancelled:'書き出しをキャンセルしました。',exportFailed:'音声を書き出せませんでした。別の形式または短い音声で試してください。',exportNoClips:'書き出す音声を追加してください。',exportComplete:'音声を書き出しました',saveAudio:'音声を保存',downloadStarted:'保存を開始しました。',exportCount:'{count}件',exportDuration:'合計 {time}',how4:'「書き出し」で形式とファイル名を選び、1つの音声として保存します。',
-        helpTitle:'使い方',whatTitle:'このツールでできること',whatCopy:'複数の音声を追加し、使用範囲を調整・分割して、好きな順番に並べられます。上から順に連続試聴でき、隣り合う2クリップのつなぎ目だけを短く確認することもできます。',howTitle:'基本操作',how1:'「音声を選択」から1件以上の音声ファイルを追加します。',how2:'クリップを選び、使用範囲を調整・分割します。',how3:'ドラッグまたは上下ボタンで完成順に並べ、「最初から試聴」で順番を確認します。選択中クリップに次のクリップがある場合は「次とのつなぎ目を確認」で境界だけ試聴できます。',
+        clipKeyboardHelp:'クリップ行はEnterまたはSpaceで選択できます。上下・削除ボタンはTabで移動し、EnterまたはSpaceで操作できます。並べ替え・削除・元に戻すの後も、表示中のクリップ操作・音声選択・現在のタブへフォーカスを戻します。「範囲をリセット」にフォーカスがある場合、操作後は開始欄または現在のタブへ戻します。',helpScroll:'画面が小さい場合はヘルプの本文内をスクロールしてください。閉じるボタンは上部に残ります。Escキーでも閉じられます。',helpTitle:'使い方',whatTitle:'このツールでできること',whatCopy:'複数の音声を追加し、使用範囲を調整・分割して、好きな順番に並べられます。上から順に連続試聴でき、隣り合う2クリップのつなぎ目だけを短く確認することもできます。',howTitle:'基本操作',how1:'「音声を選択」から1件以上の音声ファイルを追加します。',how2:'クリップを選び、使用範囲を調整・分割します。',how3:'ドラッグまたは上下ボタンで完成順に並べ、「最初から試聴」で順番を確認します。選択中クリップに次のクリップがある場合は「次とのつなぎ目を確認」で境界だけ試聴できます。',
         formatTitle:'対応形式について',formatCopy:'このアプリではブラウザの音声デコード機能を使用します。MP3、M4A/AAC、WAV、OGG、WebMなどでも、利用ブラウザによって読み込める形式が異なります。',privacyTitle:'プライバシー',privacyCopy:'読み込んだ音声は外部サーバーへ送信しません。波形作成・編集情報・試聴はブラウザ内で扱い、実行時の外部通信はCSPで遮断しています。',keyboardTitle:'キーボード',keyPlay:'再生 / 一時停止',keySeek:'5秒移動',
         clipsCount:'{count}件',remove:'削除',removed:'「{name}」を削除しました',invalid:'音声ファイルを選択してください。',loadFailed:'この音声を読み込めませんでした。対応形式を確認してください。',waveFailed:'ブラウザの音声デコード機能でこのファイルを解析できませんでした。再生できる場合でも波形を作成できないことがあります。',mono:'モノラル',stereo:'ステレオ',channelsN:'{count} ch',part:'区間',trimChanged:'使用する範囲を変更しました',trimInvalid:'開始位置は終了位置より前になるように指定してください。',splitDone:'クリップを2つに分割しました',splitInvalid:'開始・終了位置から少し離れた場所で分割してください。',undoDelete:'削除を元に戻しました',undoSplit:'分割を元に戻しました',undoTrim:'範囲変更を元に戻しました'
       },
@@ -545,7 +562,7 @@
         duration:'Kept length',size:'Source file',sampleRate:'Sample rate',channels:'Channels',undo:'Undo',sequenceTitle:'Preview sequence',previewAll:'Preview from start',stopPreview:'Stop preview',sequenceSummary:'{count} clips · {time} total',sequenceSummaryPending:'{count} clips · duration updates during preview',sequencePlaying:'{current} / {count} · {name}',junctionPlaying:'Previewing junction · {name}',previewFinished:'Sequence preview finished',junctionFinished:'Junction preview finished',
         moveUp:'Move up',moveDown:'Move down',dragToReorder:'Drag to reorder',reordered:'Reordered clips',undoReorder:'Restored the previous order',
         exportTitle:'Export',exportShort:'Export',exportSub:'Create one audio file in the edited order',exportSummaryFormat:'44.1 kHz · Stereo',outputName:'File name',outputFormat:'Format',outputQuality:'Quality',exportNote:'MP3 and WAV export work entirely inside this HTML. M4A is available when the browser supports AAC encoding.',exportM4aUnavailable:'M4A / AAC export is unavailable in this browser. Choose MP3 or WAV.',exportButton:'Export audio',exportPreparing:'Preparing audio',exportEncoding:'Exporting audio',exportFinishing:'Finishing file',cancelExport:'Cancel',exportCancelled:'Export cancelled.',exportFailed:'Could not export the audio. Try another format or a shorter project.',exportNoClips:'Add audio before exporting.',exportComplete:'Audio export complete',saveAudio:'Save audio',downloadStarted:'Download started.',exportCount:'{count} clips',exportDuration:'{time} total',how4:'Open “Export”, choose a format and file name, then save the combined audio.',
-        helpTitle:'How to use',whatTitle:'What this tool does',whatCopy:'Add multiple audio files, adjust or split their kept ranges, and arrange them in any order. Preview the list from top to bottom, or preview only the short junction between two neighboring clips.',howTitle:'Basic steps',how1:'Add one or more files with “Choose audio”.',how2:'Select a clip and adjust or split its kept range.',how3:'Arrange clips with drag and drop or the Up / Down buttons, then use “Preview from start”. When the selected clip has a following clip, “Preview next junction” plays only the boundary.',
+        clipKeyboardHelp:'Select a clip row with Enter or Space. Tab to the Up, Down, or Remove buttons and use Enter or Space to activate them. After reorder, remove, or Undo, focus returns to a visible clip control, audio picker, or current tab. When Reset trim has focus, it returns focus to Start or the current tab.',helpScroll:'On a small screen, scroll inside the Help text. The Close button stays at the top. You can also press Esc to close Help.',helpTitle:'How to use',whatTitle:'What this tool does',whatCopy:'Add multiple audio files, adjust or split their kept ranges, and arrange them in any order. Preview the list from top to bottom, or preview only the short junction between two neighboring clips.',howTitle:'Basic steps',how1:'Add one or more files with “Choose audio”.',how2:'Select a clip and adjust or split its kept range.',how3:'Arrange clips with drag and drop or the Up / Down buttons, then use “Preview from start”. When the selected clip has a following clip, “Preview next junction” plays only the boundary.',
         formatTitle:'Supported formats',formatCopy:'This app uses the browser’s built-in audio decoder. MP3, M4A/AAC, WAV, OGG, WebM, and other formats can vary by browser.',privacyTitle:'Privacy',privacyCopy:'Loaded audio is not sent to an external server. Waveform generation, edit data, and preview playback stay in the browser, and runtime network access is blocked by CSP.',keyboardTitle:'Keyboard',keyPlay:'Play / pause',keySeek:'Seek 5 seconds',
         clipsCount:'{count} clips',remove:'Remove',removed:'Removed “{name}”',invalid:'Choose an audio file.',loadFailed:'This audio file could not be loaded. Check the file format.',waveFailed:'The browser audio decoder could not analyze this file. In some cases playback may work even when waveform generation is unavailable.',mono:'Mono',stereo:'Stereo',channelsN:'{count} ch',part:'Part',trimChanged:'Updated the kept range',trimInvalid:'Start must be earlier than End.',splitDone:'Split the clip into two parts',splitInvalid:'Choose a split point a little away from the Start and End positions.',undoDelete:'Restored the deleted clip',undoSplit:'Restored the split clip',undoTrim:'Restored the previous range'
       }
@@ -603,56 +620,75 @@
     function snapshotClip(clip){return {baseStart:clip.baseStart,baseEnd:clip.baseEnd,trimStart:clip.trimStart,trimEnd:clip.trimEnd};}
     function restoreSnapshot(clip,snap){clip.baseStart=snap.baseStart;clip.baseEnd=snap.baseEnd;clip.trimStart=snap.trimStart;clip.trimEnd=snap.trimEnd;}
     function showToast(message,{undo=false}={}){clearTimeout(state.toastTimer);els.toastMessage.textContent=message;els.toastAction.hidden=!undo;els.toast.classList.add('show');state.toastTimer=setTimeout(()=>els.toast.classList.remove('show'),5000);}
-    function setUndo(action,message){state.undo=action;invalidateExportResult();showToast(message,{undo:true});}
+    function setUndo(action,message){clipEditEpoch++;state.undo=action;invalidateExportResult();showToast(message,{undo:true});}
     function reorderFromIds(ids){const byId=new Map(state.clips.map(c=>[c.id,c]));const ordered=ids.map(id=>byId.get(id)).filter(Boolean);for(const clip of state.clips)if(!ids.includes(clip.id))ordered.push(clip);state.clips=ordered;}
     async function undoLast(){
-      const action=state.undo;if(!action)return;state.undo=null;stopSequence();
-      if(action.type==='delete'){invalidateExportResult();state.clips.splice(Math.min(action.index,state.clips.length),0,action.clip);renderClips();await selectClip(action.clip.id);showToast(t('undoDelete'));return;}
-      if(action.type==='split'){invalidateExportResult();const at=state.clips.findIndex(c=>c.id===action.leftId);const index=at>=0?at:Math.min(action.index,state.clips.length);state.clips.splice(index,2,action.original);renderClips();await selectClip(action.original.id);showToast(t('undoSplit'));return;}
-      if(action.type==='trim'){const clip=clipById(action.clipId);if(!clip)return;invalidateExportResult();restoreSnapshot(clip,action.before);renderClips();renderSelectedMeta();setAudioToRangeStart(clip);drawWaveform();showToast(t('undoTrim'));return;}
-      if(action.type==='reorder'){invalidateExportResult();reorderFromIds(action.beforeIds);renderClips();renderSelectedMeta();showToast(t('undoReorder'));}
+      const action=state.undo;if(!action)return;
+      const owner=document.activeElement,focusEpoch=clipFocusEpoch,editEpoch=++clipEditEpoch;
+      let selectionEpoch=clipSelectionEpoch;
+      const focus=action.focus||clipFocusTarget()||{id:action.clip?.id||action.original?.id||action.clipId||state.selectedId,index:0};
+      const restoreFocus=()=>{if((owner===els.toastAction||els.clipList.contains(owner))&&focusEpoch===clipFocusEpoch&&editEpoch===clipEditEpoch&&selectionEpoch===clipSelectionEpoch&&(document.activeElement===owner||document.activeElement===document.body))restoreClipFocus(focus);};
+      state.undo=null;stopSequence();
+      if(action.type==='delete'){invalidateExportResult();state.clips.splice(Math.min(action.index,state.clips.length),0,action.clip);renderClips();const selection=selectClip(action.clip.id);selectionEpoch=clipSelectionEpoch;await selection;showToast(t('undoDelete'));restoreFocus();return;}
+      if(action.type==='split'){invalidateExportResult();const at=state.clips.findIndex(c=>c.id===action.leftId);const index=at>=0?at:Math.min(action.index,state.clips.length);state.clips.splice(index,2,action.original);renderClips();const selection=selectClip(action.original.id);selectionEpoch=clipSelectionEpoch;await selection;showToast(t('undoSplit'));restoreFocus();return;}
+      if(action.type==='trim'){const clip=clipById(action.clipId);if(!clip)return;invalidateExportResult();restoreSnapshot(clip,action.before);renderClips();renderSelectedMeta();setAudioToRangeStart(clip);drawWaveform();showToast(t('undoTrim'));restoreFocus();return;}
+      if(action.type==='reorder'){invalidateExportResult();reorderFromIds(action.beforeIds);renderClips();renderSelectedMeta();showToast(t('undoReorder'));restoreFocus();}
     }
-    function setMobilePage(page){state.mobilePage=page;els.clipsCard.classList.toggle('is-mobile-active',page==='clips');els.editorCard.classList.toggle('is-mobile-active',page==='editor');els.exportCard.classList.toggle('is-mobile-active',page==='export');document.querySelectorAll('.mobile-tab').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.pageTarget===page));if(page==='editor')requestAnimationFrame(drawWaveform);if(page==='export')renderExportUi();}
+    function setMobilePage(page){const active=document.activeElement,focus=clipFocusTarget();state.mobilePage=page;els.clipsCard.classList.toggle('is-mobile-active',page==='clips');els.editorCard.classList.toggle('is-mobile-active',page==='editor');els.exportCard.classList.toggle('is-mobile-active',page==='export');document.querySelectorAll('.mobile-tab').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.pageTarget===page));if(page==='editor')requestAnimationFrame(drawWaveform);if(page==='export')renderExportUi();if(focus&&!active.getClientRects().length)restoreClipFocus(focus);}
     function renderSequenceSummary(){
       const count=state.clips.length,total=totalKeptDuration();
       if(state.sequencePlaying&&state.sequenceMode==='all'){const segment=state.sequenceSegments[state.sequenceIndex],clip=segment?clipById(segment.clipId):null;els.sequenceSummary.innerHTML='';const span=document.createElement('span');span.className='sequence-status';span.textContent=t('sequencePlaying',{current:Math.min(state.sequenceIndex+1,state.sequenceSegments.length),count:state.sequenceSegments.length,name:clip?clipDisplayName(clip):''});els.sequenceSummary.append(span);return;}
       if(state.sequencePlaying&&state.sequenceMode==='junction'){const segment=state.sequenceSegments[state.sequenceIndex],clip=segment?clipById(segment.clipId):null;els.sequenceSummary.innerHTML='';const span=document.createElement('span');span.className='sequence-status';span.textContent=t('junctionPlaying',{name:clip?clipDisplayName(clip):''});els.sequenceSummary.append(span);return;}
-      els.sequenceSummary.textContent=Number.isFinite(total)?t('sequenceSummary',{count,time:formatTime(total)}):t('sequenceSummaryPending',{count});
+      els.sequenceSummary.textContent=Number.isFinite(total)?t('sequenceSummary',{count,time:formatTime(Math.round(total*1000)/1000)}):t('sequenceSummaryPending',{count});
     }
     function updateSequenceUi(){
       els.previewAllButton.disabled=state.clips.length===0;els.previewAllLabel.textContent=state.sequencePlaying?t('stopPreview'):t('previewAll');els.previewAllIcon.setAttribute('href',state.sequencePlaying?'#i-stop':'#i-list-play');renderSequenceSummary();
     }
+    let clipFocusEpoch=0,clipEditEpoch=0,clipSelectionEpoch=0;
+    document.addEventListener('focusin',()=>{clipFocusEpoch++;});
+    function clipFocusTarget(){
+      const active=document.activeElement,row=active?.closest('.clip-item');
+      return row&&els.clipList.contains(row)?{id:row.dataset.id,index:Array.from(els.clipList.children).indexOf(row),action:active.dataset.clipAction}:null;
+    }
+    function restoreClipFocus(focus){
+      if(!focus||document.querySelector('dialog[open]'))return;
+      const rows=Array.from(els.clipList.children),row=rows.find(item=>item.dataset.id===focus.id)||rows[Math.min(focus.index,rows.length-1)];
+      const action=row&&Array.from(row.querySelectorAll('[data-clip-action]')).find(button=>button.dataset.clipAction===focus.action&&!button.disabled);
+      const target=[action,row,els.fileInput,document.querySelector('.mobile-tab.is-active')].find(node=>node&&!node.disabled&&node.isConnected&&node.getClientRects().length);
+      target?.focus();
+    }
     function renderClips(){
+      const focus=clipFocusTarget();
       renderExportUi();
       els.clipArea.hidden=state.clips.length===0;els.dropZone.hidden=state.clips.length>0;els.clipCount.textContent=t('clipsCount',{count:state.clips.length});els.clipList.replaceChildren();
       state.clips.forEach((clip,index)=>{
         const item=document.createElement('div');item.className='clip-item'+(clip.id===state.selectedId?' is-selected':'');item.tabIndex=0;item.dataset.id=clip.id;
-        const grip=document.createElement('button');grip.className='clip-grip';grip.type='button';grip.draggable=true;grip.setAttribute('aria-label',`${t('dragToReorder')}: ${clipDisplayName(clip)}`);grip.innerHTML='<svg class="icon"><use href="#i-grip"/></svg>';
+        const grip=document.createElement('button');grip.className='clip-grip';grip.dataset.clipAction='grip';grip.type='button';grip.draggable=true;grip.setAttribute('aria-label',`${t('dragToReorder')}: ${clipDisplayName(clip)}`);grip.innerHTML='<svg class="icon"><use href="#i-grip"/></svg>';
         grip.addEventListener('click',e=>e.stopPropagation());
         grip.addEventListener('dragstart',e=>{state.dragClipId=clip.id;item.classList.add('is-dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',clip.id);});
         grip.addEventListener('dragend',()=>{state.dragClipId=null;document.querySelectorAll('.clip-item').forEach(node=>{node.classList.remove('is-dragging');delete node.dataset.dropPosition;});});
         const main=document.createElement('div');main.className='clip-main';const name=document.createElement('div');name.className='clip-name';name.textContent=clipDisplayName(clip);const meta=document.createElement('div');meta.className='clip-meta';const d=keptDuration(clip);const bits=[extension(clip.file.name),Number.isFinite(d)?formatTime(d,true):'—',formatBytes(clip.file.size)];bits.forEach((bit,i)=>{if(i)meta.append(document.createTextNode(' · '));const span=document.createElement('span');if(i===1&&Number.isFinite(d))span.className='clip-range';span.textContent=bit;meta.append(span);});main.append(name,meta);
         const actions=document.createElement('div');actions.className='clip-actions';
-        const up=document.createElement('button');up.className='clip-action';up.type='button';up.disabled=index===0;up.setAttribute('aria-label',`${t('moveUp')}: ${clipDisplayName(clip)}`);up.innerHTML='<svg class="icon"><use href="#i-up"/></svg>';up.addEventListener('click',e=>{e.stopPropagation();moveClip(clip.id,-1);});
-        const down=document.createElement('button');down.className='clip-action';down.type='button';down.disabled=index===state.clips.length-1;down.setAttribute('aria-label',`${t('moveDown')}: ${clipDisplayName(clip)}`);down.innerHTML='<svg class="icon"><use href="#i-down"/></svg>';down.addEventListener('click',e=>{e.stopPropagation();moveClip(clip.id,1);});
-        const remove=document.createElement('button');remove.className='clip-action remove';remove.type='button';remove.setAttribute('aria-label',`${t('remove')}: ${clipDisplayName(clip)}`);remove.innerHTML='<svg class="icon"><use href="#i-trash"/></svg>';remove.addEventListener('click',e=>{e.stopPropagation();removeClip(clip.id);});actions.append(up,down,remove);
-        item.append(grip,main,actions);item.addEventListener('click',()=>selectClip(clip.id));item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectClip(clip.id);}});
+        const up=document.createElement('button');up.className='clip-action';up.dataset.clipAction='up';up.type='button';up.disabled=index===0;up.setAttribute('aria-label',`${t('moveUp')}: ${clipDisplayName(clip)}`);up.innerHTML='<svg class="icon"><use href="#i-up"/></svg>';up.addEventListener('click',e=>{e.stopPropagation();moveClip(clip.id,-1);});
+        const down=document.createElement('button');down.className='clip-action';down.dataset.clipAction='down';down.type='button';down.disabled=index===state.clips.length-1;down.setAttribute('aria-label',`${t('moveDown')}: ${clipDisplayName(clip)}`);down.innerHTML='<svg class="icon"><use href="#i-down"/></svg>';down.addEventListener('click',e=>{e.stopPropagation();moveClip(clip.id,1);});
+        const remove=document.createElement('button');remove.className='clip-action remove';remove.dataset.clipAction='remove';remove.type='button';remove.setAttribute('aria-label',`${t('remove')}: ${clipDisplayName(clip)}`);remove.innerHTML='<svg class="icon"><use href="#i-trash"/></svg>';remove.addEventListener('click',e=>{e.stopPropagation();removeClip(clip.id);});actions.append(up,down,remove);
+        item.append(grip,main,actions);item.addEventListener('click',()=>selectClip(clip.id));item.addEventListener('keydown',e=>{if(e.target!==item)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();selectClip(clip.id);}});
         item.addEventListener('dragover',e=>{if(!state.dragClipId||state.dragClipId===clip.id)return;e.preventDefault();e.dataTransfer.dropEffect='move';const rect=item.getBoundingClientRect();item.dataset.dropPosition=e.clientY>rect.top+rect.height/2?'after':'before';});
         item.addEventListener('dragleave',()=>{delete item.dataset.dropPosition;});
         item.addEventListener('drop',e=>{if(!state.dragClipId||state.dragClipId===clip.id)return;e.preventDefault();const after=item.dataset.dropPosition==='after';delete item.dataset.dropPosition;reorderClip(state.dragClipId,clip.id,after);});
         els.clipList.append(item);
       });
-      renderSequenceSummary();updateSequenceUi();renderSelectedMeta();
+      renderSequenceSummary();updateSequenceUi();renderSelectedMeta();restoreClipFocus(focus);
     }
-    async function addFiles(files){const valid=[...files].filter(isAudioFile);if(valid.length===0){showToast(t('invalid'));return;}invalidateExportResult();stopSequence();for(const file of valid){state.clips.push({id:newId(),sourceId:newId(),file,sourceDuration:NaN,baseStart:0,baseEnd:NaN,trimStart:0,trimEnd:NaN,sampleRate:NaN,channels:NaN,peaks:null,analysisError:null});}renderClips();if(!state.selectedId&&state.clips.length)await selectClip(state.clips[0].id);}
+    async function addFiles(files){const valid=[...files].filter(isAudioFile);if(valid.length===0){showToast(t('invalid'));return;}clipEditEpoch++;invalidateExportResult();stopSequence();for(const file of valid){state.clips.push({id:newId(),sourceId:newId(),file,sourceDuration:NaN,baseStart:0,baseEnd:NaN,trimStart:0,trimEnd:NaN,sampleRate:NaN,channels:NaN,peaks:null,analysisError:null});}renderClips();if(!state.selectedId&&state.clips.length)await selectClip(state.clips[0].id);}
     function removeClip(id){
-      stopSequence();const index=state.clips.findIndex(c=>c.id===id);if(index<0)return;const removedName=clipDisplayName(state.clips[index]);const [removed]=state.clips.splice(index,1);
+      stopSequence();const index=state.clips.findIndex(c=>c.id===id);if(index<0)return;const focus=clipFocusTarget(),removedName=clipDisplayName(state.clips[index]);const [removed]=state.clips.splice(index,1);
       if(state.selectedId===id){stopAudio();releaseCurrentUrl();state.selectedId=null;const next=state.clips[Math.min(index,state.clips.length-1)]||null;if(next)selectClip(next.id);else clearEditor();}
-      renderClips();setUndo({type:'delete',clip:removed,index},t('removed',{name:removedName}));
+      renderClips();setUndo({type:'delete',clip:removed,index,focus},t('removed',{name:removedName}));
     }
-    function moveClip(id,delta){const index=state.clips.findIndex(c=>c.id===id),target=index+delta;if(index<0||target<0||target>=state.clips.length)return;const beforeIds=state.clips.map(c=>c.id);stopSequence();const [clip]=state.clips.splice(index,1);state.clips.splice(target,0,clip);renderClips();setUndo({type:'reorder',beforeIds},t('reordered'));}
+    function moveClip(id,delta){const index=state.clips.findIndex(c=>c.id===id),target=index+delta;if(index<0||target<0||target>=state.clips.length)return;const focus=clipFocusTarget(),beforeIds=state.clips.map(c=>c.id);stopSequence();const [clip]=state.clips.splice(index,1);state.clips.splice(target,0,clip);renderClips();setUndo({type:'reorder',beforeIds,focus},t('reordered'));}
     function reorderClip(sourceId,targetId,after){
-      const sourceIndex=state.clips.findIndex(c=>c.id===sourceId);if(sourceIndex<0)return;const beforeIds=state.clips.map(c=>c.id);const [clip]=state.clips.splice(sourceIndex,1);let targetIndex=state.clips.findIndex(c=>c.id===targetId);if(targetIndex<0){state.clips.splice(sourceIndex,0,clip);return;}if(after)targetIndex+=1;state.clips.splice(targetIndex,0,clip);const afterIds=state.clips.map(c=>c.id);if(afterIds.every((id,i)=>id===beforeIds[i]))return;stopSequence();renderClips();setUndo({type:'reorder',beforeIds},t('reordered'));
+      const sourceIndex=state.clips.findIndex(c=>c.id===sourceId);if(sourceIndex<0)return;const focus=clipFocusTarget(),beforeIds=state.clips.map(c=>c.id);const [clip]=state.clips.splice(sourceIndex,1);let targetIndex=state.clips.findIndex(c=>c.id===targetId);if(targetIndex<0){state.clips.splice(sourceIndex,0,clip);return;}if(after)targetIndex+=1;state.clips.splice(targetIndex,0,clip);const afterIds=state.clips.map(c=>c.id);if(afterIds.every((id,i)=>id===beforeIds[i]))return;stopSequence();renderClips();setUndo({type:'reorder',beforeIds,focus},t('reordered'));
     }
     function releaseCurrentUrl(){if(state.currentUrl){URL.revokeObjectURL(state.currentUrl);state.currentUrl=null;}els.audio.removeAttribute('src');els.audio.load();}
     function clearEditor(){els.resetTrimButton.disabled=true;els.editorEmpty.hidden=false;els.editorShell.hidden=true;els.waveError.hidden=true;drawWaveform();}
@@ -661,7 +697,7 @@
       const clip=clipById(state.selectedId);els.resetTrimButton.disabled=true;if(!clip){els.previewJunctionButton.hidden=true;return;}normalizeClipBounds(clip);els.resetTrimButton.disabled=!canResetTrim(clip);els.currentName.textContent=clipDisplayName(clip);els.currentMeta.textContent=`${extension(clip.file.name)} · ${formatBytes(clip.file.size)}`;const kept=keptDuration(clip),base=baseDuration(clip);els.infoDuration.textContent=Number.isFinite(kept)?formatTime(kept,true):'—';els.infoSize.textContent=formatBytes(clip.file.size);els.infoRate.textContent=Number.isFinite(clip.sampleRate)?`${(clip.sampleRate/1000).toFixed(1)} kHz`:'—';els.infoChannels.textContent=clip.channels===1?t('mono'):clip.channels===2?t('stereo'):Number.isFinite(clip.channels)?t('channelsN',{count:clip.channels}):'—';els.durationTime.textContent=Number.isFinite(base)?formatTime(base):'0:00';els.trimStartInput.value=formatEditTime(localFromSource(clip,trimStart(clip)));els.trimEndInput.value=formatEditTime(localFromSource(clip,trimEnd(clip)));els.trimLength.textContent=Number.isFinite(kept)?t('selectedLength',{time:formatEditTime(kept)}):'—';const index=state.clips.indexOf(clip);els.previewJunctionButton.hidden=index<0||index>=state.clips.length-1;updateSplitPosition();
     }
     async function selectClip(id){
-      const clip=clipById(id);if(!clip)return;stopSequence();if(state.selectedId===id&&state.currentUrl){if(innerWidth<=720)setMobilePage('editor');return;}stopAudio();releaseCurrentUrl();state.selectedId=id;renderClips();els.editorEmpty.hidden=true;els.editorShell.hidden=false;els.waveError.hidden=true;els.waveOverlay.hidden=!!clip.peaks;els.currentTime.textContent='0:00';els.seekRange.value='0';renderSelectedMeta();state.currentUrl=URL.createObjectURL(clip.file);els.audio.src=state.currentUrl;els.audio.load();await loadMetadata(clip);normalizeClipBounds(clip);setAudioToRangeStart(clip);renderClips();renderSelectedMeta();if(clip.peaks){drawWaveform();}else if(!clip.analysisError){await analyzeClip(clip);}else{showWaveError();}if(innerWidth<=720)setMobilePage('editor');
+      const clip=clipById(id);if(!clip)return;clipSelectionEpoch++;stopSequence();if(state.selectedId===id&&state.currentUrl){if(innerWidth<=720)setMobilePage('editor');return;}stopAudio();releaseCurrentUrl();state.selectedId=id;renderClips();els.editorEmpty.hidden=true;els.editorShell.hidden=false;els.waveError.hidden=true;els.waveOverlay.hidden=!!clip.peaks;els.currentTime.textContent='0:00';els.seekRange.value='0';renderSelectedMeta();state.currentUrl=URL.createObjectURL(clip.file);els.audio.src=state.currentUrl;els.audio.load();await loadMetadata(clip);normalizeClipBounds(clip);setAudioToRangeStart(clip);renderClips();renderSelectedMeta();if(clip.peaks){drawWaveform();}else if(!clip.analysisError){await analyzeClip(clip);}else{showWaveError();}if(innerWidth<=720)setMobilePage('editor');
     }
     function loadMetadata(clip){return new Promise(resolve=>{let done=false;const finish=()=>{if(done)return;done=true;cleanup();resolve();};const ok=()=>{if(Number.isFinite(els.audio.duration)){clip.sourceDuration=els.audio.duration;normalizeClipBounds(clip);}finish();};const bad=()=>{showToast(t('loadFailed'));finish();};const cleanup=()=>{clearTimeout(timer);els.audio.removeEventListener('loadedmetadata',ok);els.audio.removeEventListener('error',bad);};const timer=setTimeout(finish,4500);els.audio.addEventListener('loadedmetadata',ok,{once:true});els.audio.addEventListener('error',bad,{once:true});});}
     async function analyzeClip(clip){const token=++state.analysisToken;els.analysisState.hidden=false;els.waveOverlay.hidden=false;els.waveError.hidden=true;try{const buffer=await clip.file.arrayBuffer();if(token!==state.analysisToken)return;const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)throw new Error('AudioContext unavailable');const ctx=new Ctx();let audioBuffer;try{audioBuffer=await ctx.decodeAudioData(buffer.slice(0));}finally{await ctx.close().catch(()=>{});}if(token!==state.analysisToken)return;clip.sourceDuration=audioBuffer.duration;clip.sampleRate=audioBuffer.sampleRate;clip.channels=audioBuffer.numberOfChannels;clip.peaks=extractPeaks(audioBuffer,2200);clip.analysisError=null;normalizeClipBounds(clip);setAudioToRangeStart(clip);renderSelectedMeta();renderClips();drawWaveform();els.waveOverlay.hidden=true;}catch(error){console.warn(error);clip.analysisError=String(error?.message||error);showWaveError();}finally{if(token===state.analysisToken)els.analysisState.hidden=true;}}
@@ -679,10 +715,15 @@
     function canResetTrim(clip){return !!clip&&Number.isFinite(clip.baseStart)&&Number.isFinite(clip.baseEnd)&&clip.baseStart>=0&&clip.baseEnd>clip.baseStart&&Number.isFinite(clip.trimStart)&&Number.isFinite(clip.trimEnd)&&(clip.trimStart!==clip.baseStart||clip.trimEnd!==clip.baseEnd);}
     function resetTrim(){
       const clip=clipById(state.selectedId);if(!canResetTrim(clip))return;
+      const owner=document.activeElement,focusEpoch=clipFocusEpoch;
       const before=snapshotClip(clip);stopSequence();stopAudio();
       clip.trimStart=clip.baseStart;clip.trimEnd=clip.baseEnd;
       setUndo({type:'trim',clipId:clip.id,before},t('trimReset'));
       setAudioToRangeStart(clip);renderClips();renderSelectedMeta();drawWaveform();
+      if(owner===els.resetTrimButton&&focusEpoch===clipFocusEpoch&&!document.querySelector('dialog[open]')&&(document.activeElement===owner||document.activeElement===document.body)){
+        const target=[els.trimStartInput,document.querySelector('.mobile-tab.is-active')].find(node=>node&&!node.disabled&&node.isConnected&&node.getClientRects().length);
+        target?.focus();
+      }
     }
     function applyTrimInput(which){const clip=clipById(state.selectedId);if(!clip)return;const field=which==='start'?els.trimStartInput:els.trimEndInput,local=parseEditTime(field.value),bd=baseDuration(clip);if(!Number.isFinite(local)||!Number.isFinite(bd)||local<0||local>bd){showToast(t('trimInvalid'));renderSelectedMeta();return;}const source=sourceFromLocal(clip,local);if(which==='start')setTrimRange(clip,source,trimEnd(clip));else setTrimRange(clip,trimStart(clip),source);}
     function setBoundaryFromPlayhead(which){const clip=clipById(state.selectedId);if(!clip)return;const current=els.audio.currentTime||baseStart(clip);if(which==='start')setTrimRange(clip,current,trimEnd(clip));else setTrimRange(clip,trimStart(clip),current);}
