@@ -5,6 +5,8 @@
 - Lock background page scrolling while Help is modal and size its independently scrolling text around the fixed header and safe-area viewport.
 - Keep the title/version and header actions visible on narrow screens, and reserve mobile focus-scrolling room above the fixed bottom tabs.
 - Replace the local-processing badge’s padlock with a decorative shield, preserving the app icon, favicon, and privacy wording.
+- Preserve native Enter/Space activation on clip action buttons and logical focus across list re-rendering, reorder, Remove, and Undo, with visible mobile fallback and newer-focus/modal protection.
+- Add bilingual clip-keyboard guidance and source-level DOM/focus regression checks.
 - Add bilingual Help guidance and layout regression contracts to every shipped representation’s canonical checks. Native keyboard/layout and full audio/save-flow verification remain separate checks.
 
 ## 1.0.3 - 2026-10-09

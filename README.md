@@ -65,6 +65,8 @@ Python, Node.js, and a local web server are not required for the Windows build.
 | `←` | Seek back 5 seconds |
 | `→` | Seek forward 5 seconds |
 
+Use Tab to reach clip rows and their Up, Down, and Remove buttons; Enter or Space selects the row or activates the focused button. Reordering retains the same clip action when enabled, otherwise its row. Removing a clip moves focus to a surviving neighbor or the visible empty-state picker. Undo returns focus to the restored clip action when available. On mobile, existing Edit navigation is preserved and the current tab is used when the clip list is hidden. A newer focused control, modal, or edit keeps ownership during asynchronous Undo.
+
 ## Format support
 
 ### Input
@@ -179,4 +181,4 @@ Help keeps its Close button visible while its text scrolls inside the available 
 
 ### Automated audio regressions
 
-Run `node --test tests/audio-editing.test.cjs tests/header.test.cjs tests/layout.test.cjs` with Node.js 18+ for source-level checks, or run `scripts/check-repository.ps1` for the build plus checks against source, root HTML, standalone HTML, and the restored self-extract payload. Tests use synthetic AudioBuffer-compatible samples and DOM/media doubles, and inspect real WAV bytes. Layout checks assert the CSS/markup contracts, not rendered geometry. Manually check Help wheel/keyboard scrolling and dismissal, title/version visibility, and Tab navigation through File name, Format, and Quality above the mobile tabs at narrow/short sizes in both languages. They do not replace browser layout, native decoder/encoder, listening, offline, or saved-file reopening checks.
+Run `node --test tests/audio-editing.test.cjs tests/header.test.cjs tests/layout.test.cjs` with Node.js 18+ for source-level checks, or run `scripts/check-repository.ps1` for the build plus checks against source, root HTML, standalone HTML, and the restored self-extract payload. Tests use synthetic AudioBuffer-compatible samples and DOM/media doubles, and inspect real WAV bytes. Layout checks assert the CSS/markup contracts, not rendered geometry. Clip-focus checks model DOM connectivity, visible/enabled targets, and the original event bubbling path; they do not prove native keyboard behavior or on-screen focus visibility. Manually check Help wheel/keyboard scrolling and dismissal, title/version visibility, and Tab navigation through File name, Format, and Quality above the mobile tabs at narrow/short sizes in both languages. Also verify loaded clip Enter/Space activation, repeated reorder including boundaries, Remove/Undo, empty-state focus, and mobile current-tab fallback without stealing newer focus or modal ownership. They do not replace browser layout, native decoder/encoder, listening, offline, or saved-file reopening checks.

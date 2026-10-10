@@ -65,6 +65,9 @@ The UI may state `完全ローカル処理 / Fully local processing` only while 
 - Selecting a clip updates the preview.
 - Removing a clip offers Undo.
 - Deleting the selected clip safely selects an adjacent clip when available.
+- Enter / Space on a clip row selects that row; descendant buttons retain native activation.
+- Re-rendering and reordering preserve the logical clip action when enabled, with the same row as a boundary fallback. Remove and Undo use a surviving/restored clip or visible empty-state/current-tab target.
+- Focus restoration preserves existing mobile navigation and does not reclaim focus from a newer user action, modal, edit, or selection during asynchronous Undo.
 
 ### Waveform
 

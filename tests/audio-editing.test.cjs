@@ -89,3 +89,87 @@ test('reset during export keeps its Undo action available after cancellation', a
   const h = loadApp(), [clip] = h.seed(); h.app.setTrimRange(clip, .25, .75); const gate = h.delayDecode(), pending = h.app.startExport(); await gate.begun; reset(h); gate.resolve(); await pending;
   assert.equal(h.app.els.toastAction.hidden, false); await h.app.els.toastAction.click(); assert.deepEqual(range(clip), [.25, .75]);
 });
+
+// Production handlers run against a tree/focus/event-path double. Native browser
+// Tab, rendered visibility, scrolling, media decoding and playback remain manual checks.
+const rows = h => h.app.els.clipList.children;
+const row = (h, id) => rows(h).find(item => item.dataset.id === id);
+const action = (h, id, name) => name === 'row' ? row(h, id) : row(h, id).querySelectorAll('button')[{ grip: 0, up: 1, down: 2, remove: 3 }[name]];
+const order = h => Array.from(h.app.state.clips, clip => clip.id);
+const flush = async () => { for (let i = 0; i < 8; i++) await Promise.resolve(); };
+function assertFocus(h, id, name) { assert.ok(h.document.activeElement === action(h, id, name), `${id} ${name} owns focus`); assert.ok(h.document.activeElement.isConnected); assert.ok(h.document.activeElement.getClientRects().length); assert.equal(h.document.activeElement.disabled, false); }
+function activate(h, id, name) { const button = action(h, id, name); button.focus(); return button.click(); }
+
+for (const key of ['Enter', ' ']) test(`nested Move up keeps native ${JSON.stringify(key)} activation instead of selecting the row`, async () => {
+  const h = loadApp(); h.seed(3); const button = action(h, 'clip-2', 'up'); button.focus();
+  await h.press(button, key); assert.deepEqual(order(h), ['clip-0', 'clip-2', 'clip-1']); assert.equal(h.app.state.selectedId, 'clip-0'); assertFocus(h, 'clip-2', 'up');
+});
+test('row Enter still selects its own clip and retains the row across asynchronous rendering', async () => {
+  const h = loadApp(); h.seed(2); const item = row(h, 'clip-1'); item.focus(); await h.press(item, 'Enter'); await flush();
+  assert.equal(h.app.state.selectedId, 'clip-1'); assertFocus(h, 'clip-1', 'row');
+});
+test('pointer Move down retains the logical action on the moved clip', () => {
+  const h = loadApp(); const clips = h.seed(3), files = clips.map(c => c.file), peaks = clips.map(c => c.peaks);
+  activate(h, 'clip-0', 'down'); assert.deepEqual(order(h), ['clip-1', 'clip-0', 'clip-2']); assertFocus(h, 'clip-0', 'down');
+  for (const clip of h.app.state.clips) { const index = Number(clip.id.slice(-1)); assert.equal(clip.file, files[index]); assert.equal(clip.peaks, peaks[index]); }
+});
+for (const [id, name] of [['clip-1', 'up'], ['clip-1', 'down']]) test(`moving ${name} to a boundary uses a focusable same-row fallback`, () => {
+  const h = loadApp(); h.seed(3); activate(h, id, name); assertFocus(h, id, 'row');
+});
+test('drag reorder preserves its focused grip by clip identity', () => {
+  const h = loadApp(); h.seed(3); action(h, 'clip-2', 'grip').focus(); h.app.reorderClip('clip-2', 'clip-0', false); assertFocus(h, 'clip-2', 'grip');
+});
+test('ordinary rerenders retain the logical action without moving an unrelated focus owner', () => {
+  const h = loadApp(); h.seed(3); action(h, 'clip-1', 'remove').focus(); h.app.applyLanguage('ja'); assertFocus(h, 'clip-1', 'remove');
+  h.app.els.outputNameInput.focus(); h.app.renderClips(); assert.equal(h.document.activeElement, h.app.els.outputNameInput);
+});
+test('Remove moves focus to the next surviving logical row action', async () => {
+  const h = loadApp(); h.seed(3); activate(h, 'clip-1', 'remove'); await flush(); assert.deepEqual(order(h), ['clip-0', 'clip-2']); assertFocus(h, 'clip-2', 'remove');
+});
+test('removing the selected last row retains its previous neighbor through async selection', async () => {
+  const h = loadApp(); h.seed(2); await h.app.selectClip('clip-1'); activate(h, 'clip-1', 'remove'); await flush();
+  assert.equal(h.app.state.selectedId, 'clip-0'); assertFocus(h, 'clip-0', 'remove');
+});
+test('removing the only clip focuses the visible empty-state picker', async () => {
+  const h = loadApp(); h.seed(); activate(h, 'clip-0', 'remove'); await flush(); assert.ok(h.document.activeElement === h.app.els.fileInput, 'empty-state picker owns focus'); assert.ok(h.document.activeElement.getClientRects().length);
+});
+test('Undo from its toast restores the deleted clip action after asynchronous selection', async () => {
+  const h = loadApp(); h.seed(2); activate(h, 'clip-1', 'remove'); h.app.els.toastAction.focus(); await h.app.els.toastAction.click();
+  assert.deepEqual(order(h), ['clip-0', 'clip-1']); assertFocus(h, 'clip-1', 'remove'); assert.equal(h.app.state.undo, null);
+});
+test('reorder Undo restores the original logical action even after a disabled boundary fallback', async () => {
+  const h = loadApp(); h.seed(2); activate(h, 'clip-1', 'up'); h.app.els.toastAction.focus(); await h.app.els.toastAction.click();
+  assert.deepEqual(order(h), ['clip-0', 'clip-1']); assertFocus(h, 'clip-1', 'up');
+});
+test('no-op reorder leaves focus, Undo and export ownership unchanged', async () => {
+  const h = loadApp(); h.seed(2); action(h, 'clip-0', 'remove').focus(); const before = h.document.activeElement; const undo = { sentinel: true }; h.app.state.undo = undo;
+  await h.app.startExport(); const result = h.app.state.exportResult; h.app.moveClip('clip-0', -1); h.app.reorderClip('clip-0', 'clip-1', false);
+  assert.equal(h.document.activeElement, before); assert.equal(h.app.state.undo, undo); assert.equal(h.app.state.exportResult, result);
+});
+test('mobile reorder stays in Clips and retains its action', () => {
+  const h = loadApp({ width: 320 }); h.seed(3); activate(h, 'clip-0', 'down'); assert.equal(h.app.state.mobilePage, 'clips'); assertFocus(h, 'clip-0', 'down');
+});
+test('mobile removal preserves existing Edit navigation and uses the visible current tab', async () => {
+  const h = loadApp({ width: 320 }); h.seed(2); activate(h, 'clip-0', 'remove'); await flush();
+  assert.equal(h.app.state.mobilePage, 'editor'); assert.equal(h.document.activeElement.dataset.pageTarget, 'editor'); assert.ok(h.document.activeElement.getClientRects().length);
+});
+test('mobile Undo keeps its existing Edit navigation without focusing hidden Clips', async () => {
+  const h = loadApp({ width: 320 }); h.seed(2); activate(h, 'clip-1', 'remove'); h.app.els.toastAction.focus(); await h.app.els.toastAction.click();
+  assert.equal(h.app.state.mobilePage, 'editor'); assert.equal(h.document.activeElement.dataset.pageTarget, 'editor'); assert.ok(h.document.activeElement.getClientRects().length);
+});
+for (const newerOwner of ['field', 'modal', 'closed-modal', 'operation', 'selection', 'import']) test(`pending Undo does not reclaim focus from a newer ${newerOwner}`, async () => {
+  const h = loadApp(); h.seed(3); activate(h, 'clip-1', 'remove'); const gate = h.delayMetadata(); h.app.els.toastAction.focus(); const pending = h.app.els.toastAction.click(); await gate.begun;
+  let expected;
+  if (newerOwner === 'field') { h.app.els.outputNameInput.focus(); expected = h.app.els.outputNameInput; }
+  if (newerOwner === 'modal' || newerOwner === 'closed-modal') { h.app.els.helpDialog.showModal(); expected = h.app.els.helpClose; if (newerOwner === 'closed-modal') { h.app.els.helpDialog.close(); expected = h.document.body; } }
+  if (newerOwner === 'operation') { h.app.moveClip('clip-2', -1); expected = h.document.body; }
+  if (newerOwner === 'import') { await h.app.addFiles([h.file('newer.wav')]); expected = h.document.body; }
+  if (newerOwner === 'selection') { await h.app.selectClip('clip-2'); expected = h.document.body; }
+  gate.resolve(); await pending; assert.ok(h.document.activeElement === expected, 'newer owner keeps focus'); if (newerOwner === 'modal') assert.equal(h.app.els.helpDialog.open, true);
+});
+test('Undo called without toast or clip focus does not steal an unrelated owner', async () => {
+  const h = loadApp(); h.seed(2); h.app.removeClip('clip-1'); h.app.els.outputNameInput.focus(); await h.app.undoLast(); assert.equal(h.document.activeElement, h.app.els.outputNameInput);
+});
+test('Help keyboard guidance is present and synchronized in both languages', () => {
+  const h = loadApp(); for (const language of ['ja', 'en']) { h.app.applyLanguage(language); const text = h.app.I18N[language].clipKeyboardHelp; assert.ok(text); assert.equal(h.i18nElements.find(el => el.dataset.i18n === 'clipKeyboardHelp')?.textContent, text); }
+});
