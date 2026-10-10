@@ -36,6 +36,71 @@ test('missing selection or unknown bounds disable reset without changing Undo', 
 test('reset labels and fragment guidance are present in both languages', () => {
   const h = loadApp(); for (const [lang, label, fragment] of [['en', 'Reset trim', 'fragment'], ['ja', '範囲をリセット', '分割']]) { h.app.applyLanguage(lang); assert.equal(h.app.I18N[lang].resetTrim, label); assert.ok(h.app.I18N[lang].resetTrimHelp.includes(fragment)); assert.ok(h.i18nElements.some(el => el.dataset.i18n === 'resetTrimHelp' && el.textContent === h.app.I18N[lang].resetTrimHelp)); }
 });
+// The focus double drops focus when a control disables itself, as observed in
+// the native Reset audit. Handler tests cover ownership; browser checks cover visibility.
+async function focusedReset(width = 1024) {
+  const h = loadApp({ width }), [clip] = h.seed(); await h.app.selectClip(clip.id);
+  h.app.setTrimRange(clip, .25, .75); h.app.els.resetTrimButton.focus();
+  assert.ok(h.document.activeElement === h.app.els.resetTrimButton, 'expected focus owner is retained or restored'); return { h, clip };
+}
+for (const width of [1024, 320]) for (const activation of ['click', 'Enter', ' ']) test(`focused Reset at ${width}px restores visible Start after ${JSON.stringify(activation)}`, async () => {
+  const { h, clip } = await focusedReset(width), page = h.app.state.mobilePage;
+  if (activation === 'click') await reset(h); else await h.press(h.app.els.resetTrimButton, activation);
+  assert.equal(h.app.els.resetTrimButton.disabled, true); assert.deepEqual(range(clip), [0, 1]);
+  assert.ok(h.document.activeElement === h.app.els.trimStartInput, 'expected focus owner is retained or restored'); assert.ok(h.document.activeElement.isConnected); assert.ok(h.document.activeElement.getClientRects().length); assert.equal(h.document.activeElement.disabled, false);
+  assert.equal(h.app.state.mobilePage, page); assert.equal(h.app.state.undo.type, 'trim'); assert.equal(h.app.state.selectedId, clip.id);
+});
+for (const reason of ['hidden', 'disabled', 'detached']) test(`focused Reset uses the current mobile tab when Start is ${reason}`, async () => {
+  const { h, clip } = await focusedReset(320);
+  if (reason === 'hidden') h.app.els.trimStartInput.hidden = true;
+  if (reason === 'disabled') h.app.els.trimStartInput.disabled = true;
+  if (reason === 'detached') h.app.els.trimStartInput.remove();
+  await reset(h); assert.deepEqual(range(clip), [0, 1]); assert.equal(h.app.state.mobilePage, 'editor');
+  assert.ok(h.document.activeElement === h.document.querySelector('.mobile-tab.is-active'), 'expected focus owner is retained or restored'); assert.ok(h.document.activeElement.getClientRects().length);
+});
+test('focused Reset follows a newly visible mobile tab without navigating back to hidden Edit', async () => {
+  const { h, clip } = await focusedReset(320), pause = h.app.els.sequenceAudio.pause;
+  h.app.els.sequenceAudio.pause = function () { pause.call(this); h.app.setMobilePage('export'); };
+  await reset(h); assert.deepEqual(range(clip), [0, 1]); assert.equal(h.app.state.mobilePage, 'export');
+  assert.equal(h.document.activeElement.dataset.pageTarget, 'export'); assert.ok(h.document.activeElement.getClientRects().length);
+});
+test('focused Reset does not attempt to focus an invisible fallback', async () => {
+  const { h } = await focusedReset(320); h.app.els.trimStartInput.hidden = true; h.document.querySelector('.mobile-tab.is-active').hidden = true;
+  await reset(h); assert.ok(h.document.activeElement === h.document.body, 'expected focus owner is retained or restored'); assert.equal(h.app.state.mobilePage, 'editor');
+});
+test('no-op Reset retains its existing owner, Undo, and export', async () => {
+  const { h, clip } = await focusedReset(); clip.trimStart = clip.baseStart; clip.trimEnd = clip.baseEnd;
+  const undo = h.app.state.undo, result = await exported(h); await reset(h);
+  assert.ok(h.document.activeElement === h.app.els.resetTrimButton, 'expected focus owner is retained or restored'); assert.equal(h.app.state.undo, undo); assert.equal(h.app.state.exportResult, result); assert.equal(h.revoked.includes(result.url), false);
+});
+test('Reset invoked while another field owns focus does not steal it', async () => {
+  const { h, clip } = await focusedReset(); h.app.els.outputNameInput.focus(); await reset(h);
+  assert.deepEqual(range(clip), [0, 1]); assert.ok(h.document.activeElement === h.app.els.outputNameInput, 'expected focus owner is retained or restored');
+});
+for (const newerOwner of ['field', 'blurred-field', 'modal', 'closed-modal']) test(`Reset preserves a newer ${newerOwner} during its handler`, async () => {
+  const { h, clip } = await focusedReset(), pause = h.app.els.sequenceAudio.pause;
+  h.app.els.sequenceAudio.pause = function () {
+    pause.call(this);
+    if (newerOwner === 'field' || newerOwner === 'blurred-field') { h.app.els.outputNameInput.focus(); if (newerOwner === 'blurred-field') h.app.els.outputNameInput.blur(); }
+    else { h.app.els.helpDialog.showModal(); if (newerOwner === 'closed-modal') h.app.els.helpDialog.close(); }
+  };
+  await reset(h); assert.deepEqual(range(clip), [0, 1]);
+  const expected = newerOwner === 'field' ? h.app.els.outputNameInput : newerOwner === 'modal' ? h.app.els.helpClose : h.document.body;
+  assert.ok(h.document.activeElement === expected, 'expected focus owner is retained or restored'); if (newerOwner === 'modal') assert.equal(h.app.els.helpDialog.open, true);
+});
+
+for (const [total, expected] of [[5 - 1 / 44100, '0:05'], [4.9994, '0:04'], [4.75, '0:04'], [5 + 1 / 44100, '0:05'], [60 - 1 / 44100, '1:00'], [59.9994, '0:59'], [60.25, '1:00'], [120 - 1 / 44100, '2:00']]) test(`sequence summary rounds ${total} to millisecond precision before showing ${expected}`, () => {
+  const h = loadApp(), [clip] = h.seed(); clip.sourceDuration = total; clip.baseEnd = total; clip.trimEnd = total;
+  const before = range(clip); h.app.renderClips();
+  assert.equal(h.app.els.sequenceSummary.textContent, `1 clips · ${expected} total`); assert.equal(h.app.totalKeptDuration(), total); assert.deepEqual(range(clip), before);
+  h.app.applyLanguage('ja'); assert.equal(h.app.els.sequenceSummary.textContent, `1件 · 合計 ${expected}`); assert.equal(h.app.totalKeptDuration(), total);
+});
+test('one-sample sequence correction leaves playback floor, exact ranges, and export precision unchanged', () => {
+  const h = loadApp(), clips = h.seed(5), last = clips.at(-1); last.trimEnd = 1 - 1 / 44100;
+  h.app.renderClips(); assert.equal(h.app.els.sequenceSummary.textContent, '5 clips · 0:05 total'); assert.equal(h.app.els.exportSummaryTime.textContent, '0:05.000 total');
+  assert.equal(h.app.totalKeptDuration(), 5 - 1 / 44100); assert.equal(last.trimEnd, 1 - 1 / 44100);
+  h.app.els.audio.currentTime = 1 - 1 / 44100; h.app.els.audio.dispatch('timeupdate'); assert.equal(h.app.els.currentTime.textContent, '0:00');
+});
 test('valid import revokes old WAV and fresh output includes both clips', async () => {
   const h = loadApp(); h.seed(); const old = await exported(h); assert.equal(old.blob.size, 176444);
   await h.app.addFiles([h.file('added.wav')]); await h.app.selectClip(h.app.state.clips[1].id); cleared(h, old);
@@ -171,5 +236,9 @@ test('Undo called without toast or clip focus does not steal an unrelated owner'
   const h = loadApp(); h.seed(2); h.app.removeClip('clip-1'); h.app.els.outputNameInput.focus(); await h.app.undoLast(); assert.equal(h.document.activeElement, h.app.els.outputNameInput);
 });
 test('Help keyboard guidance is present and synchronized in both languages', () => {
-  const h = loadApp(); for (const language of ['ja', 'en']) { h.app.applyLanguage(language); const text = h.app.I18N[language].clipKeyboardHelp; assert.ok(text); assert.equal(h.i18nElements.find(el => el.dataset.i18n === 'clipKeyboardHelp')?.textContent, text); }
+  const guidance = {
+    ja: ['「範囲をリセット」にフォーカスがある場合', '開始欄または現在のタブへ戻します'],
+    en: ['When Reset trim has focus', 'Start or the current tab']
+  };
+  const h = loadApp(); for (const language of ['ja', 'en']) { h.app.applyLanguage(language); const text = h.app.I18N[language].clipKeyboardHelp; assert.ok(text); assert.equal(h.i18nElements.find(el => el.dataset.i18n === 'clipKeyboardHelp')?.textContent, text); for (const phrase of guidance[language]) assert.ok(text.includes(phrase), `${language} Help explains ${phrase}`); }
 });

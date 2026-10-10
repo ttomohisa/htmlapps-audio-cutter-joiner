@@ -96,6 +96,7 @@ The UI may state `完全ローカル処理 / Fully local processing` only while 
 - Delete, split, and trim changes provide one-step Undo.
 - Reset trim restores the selected clip's exact base boundaries, with one-step Undo. Split fragments restore only their own range. Unknown ranges and already-reset clips disable the action without replacing Undo.
 - Reset stops preview and preserves clip/source identity, order, source File objects and cached peaks.
+- Successful Reset returns focus from its now-disabled button to the visible Start field or current mobile tab without changing pages. Unrelated or newer focus and modal ownership are preserved; no-op Reset does not move focus.
 
 
 ### Joiner
@@ -107,7 +108,7 @@ The UI may state `完全ローカル処理 / Fully local processing` only while 
 - Sequence preview plays every clip in the current list order and respects each kept range.
 - Junction preview plays approximately the final 2 seconds of the selected clip followed by the first 2 seconds of the next clip.
 - Starting another edit or preview stops sequence playback so two audio elements do not play at once.
-- Total sequence duration is shown when duration metadata is available for all clips.
+- Total sequence duration is shown when duration metadata is available for all clips. Its whole-second summary rounds the total to millisecond display precision before truncating seconds, avoiding one-sample boundary undercounts without changing exact ranges, playback timing, or export.
 
 ### File information
 

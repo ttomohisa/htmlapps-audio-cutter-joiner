@@ -15,7 +15,9 @@ function loadApp({ language = 'en', savedLanguage = null, storageThrows = false,
   // focus and the original bubbling path. It does not model browser layout.
   function element(tag = 'DIV') {
     const listeners = new Map(), classes = new Set();
-    const el = { tagName: tag, style: {}, dataset: {}, hidden: false, disabled: false, value: '', textContent: '', innerHTML: '', currentTime: 0, duration: 1, paused: true, readyState: 1, children: [], parentElement: null,
+    let disabled = false;
+    const el = { tagName: tag, style: {}, dataset: {}, hidden: false, value: '', textContent: '', innerHTML: '', currentTime: 0, duration: 1, paused: true, readyState: 1, children: [], parentElement: null,
+      get disabled() { return disabled; }, set disabled(value) { disabled = !!value; if (disabled && document?.activeElement === this) document.activeElement = document.body; },
       get isConnected() { return this === document?.body || !!this.parentElement?.isConnected; },
       get className() { return [...classes].join(' '); }, set className(value) { classes.clear(); String(value).split(/\s+/).filter(Boolean).forEach(c => classes.add(c)); },
       classList: { add(...values) { values.forEach(c => classes.add(c)); }, remove(...values) { values.forEach(c => classes.delete(c)); }, contains(value) { return classes.has(value); }, toggle(value, force) { const add = force ?? !classes.has(value); if (add) classes.add(value); else classes.delete(value); return add; } },

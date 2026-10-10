@@ -2,6 +2,8 @@
 
 ## 1.0.4 - 2026-10-10
 
+- Return focus after successful Reset trim to the visible Start field or current mobile tab, preserving newer focus/modal ownership and existing navigation.
+- Round sequence-summary input to millisecond display precision before whole-second formatting, so a one-sample shortfall does not undercount a displayed second or minute.
 - Lock background page scrolling while Help is modal and size its independently scrolling text around the fixed header and safe-area viewport.
 - Keep the title/version and header actions visible on narrow screens, and reserve mobile focus-scrolling room above the fixed bottom tabs.
 - Replace the local-processing badge’s padlock with a decorative shield, preserving the app icon, favicon, and privacy wording.
