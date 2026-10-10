@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.4 - 2026-10-10
+
+- Lock background page scrolling while Help is modal and size its independently scrolling text around the fixed header and safe-area viewport.
+- Keep the title/version and header actions visible on narrow screens, and reserve mobile focus-scrolling room above the fixed bottom tabs.
+- Replace the local-processing badge’s padlock with a decorative shield, preserving the app icon, favicon, and privacy wording.
+- Add bilingual Help guidance and layout regression contracts to every shipped representation’s canonical checks. Native keyboard/layout and full audio/save-flow verification remain separate checks.
+
 ## 1.0.3 - 2026-10-09
 
 - Normalize the app icon background to `#16624f` with 25% corner radii, and keep the asset, header and favicon consistent without changing the artwork.

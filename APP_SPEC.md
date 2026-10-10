@@ -5,7 +5,7 @@
 - Name: Audio Cutter & Joiner
 - Japanese name: 音声カット・結合
 - Repository: `ttomohisa/htmlapps-audio-cutter-joiner`
-- Current version: `v1.0.3`
+- Current version: `v1.0.4`
 
 ## Goal
 
@@ -127,9 +127,18 @@ Smartphone:
 
 - fixed bottom tabs for Clips, Edit, and Export
 - no horizontal scroll
-- no fixed UI covering the active content
+- no fixed UI covering the active content, including keyboard-focused export controls
+- the narrow header wraps the title/version as needed while keeping language and Help actions visible
 - selecting a clip moves to Waveform view
 - controls remain large enough for touch
+
+### Help dialog
+
+- Opening modal Help locks background page scrolling only while the modal remains open.
+- The dialog fits the safe-area viewport; its header and Close button stay visible while only the text body scrolls.
+- Wheel and keyboard scrolling can reach the last Help paragraph on narrow and short screens.
+- Close, Escape, and backdrop dismissal retain native dialog focus behavior.
+- The local-processing claim has a decorative shield; the app artwork and favicon stay unchanged.
 
 ### Language
 

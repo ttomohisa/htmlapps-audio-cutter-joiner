@@ -69,3 +69,13 @@ test('app icon preserves the supplied SVG and canonical header/favicon artwork',
   }
   assert.match(html, /\.brand-mark svg \{ width: 100%; height: 100%; display: block; \}/);
 });
+
+test('current release metadata agrees with the canonical patch version', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const version = loadApp().canonicalConfig.version;
+  const spec = fs.readFileSync(path.join(__dirname, '../APP_SPEC.md'), 'utf8');
+  const changelog = fs.readFileSync(path.join(__dirname, '../CHANGELOG.md'), 'utf8');
+  assert.equal(spec.match(/Current version: `v([^`]+)`/)[1], version);
+  assert.equal(changelog.match(/^## ([\d.]+) - /m)[1], version);
+});

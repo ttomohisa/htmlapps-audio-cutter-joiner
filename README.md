@@ -173,6 +173,10 @@ Application code is licensed under the [MIT License](LICENSE). Third-party compo
 - The control is disabled while the clip's range is unknown or already fully restored.
 - Adding audio, resetting trim, and undoing edits clear the previous export. Editing during an export cancels that attempt; export again to save the current sequence. Rejected imports and no-op edits keep a valid export.
 
+### Help and narrow screens
+
+Help keeps its Close button visible while its text scrolls inside the available viewport. The background page is locked only while Help is open; Close, Escape, or a backdrop click dismisses it. On narrow screens, the title/version can wrap, and keyboard focus scrolling reserves room for the header and bottom tabs. The shield beside “Fully local processing” is decorative; audio still stays in the browser.
+
 ### Automated audio regressions
 
-Run `node --test tests/audio-editing.test.cjs` with Node.js 18+ for source-level checks, or run `scripts/check-repository.ps1` for the build plus checks against source, root HTML, standalone HTML, and the restored self-extract payload. Tests use synthetic AudioBuffer-compatible samples and DOM/media doubles, and inspect real WAV bytes. They do not replace browser layout, native decoder/encoder, listening, offline, or saved-file reopening checks.
+Run `node --test tests/audio-editing.test.cjs tests/header.test.cjs tests/layout.test.cjs` with Node.js 18+ for source-level checks, or run `scripts/check-repository.ps1` for the build plus checks against source, root HTML, standalone HTML, and the restored self-extract payload. Tests use synthetic AudioBuffer-compatible samples and DOM/media doubles, and inspect real WAV bytes. Layout checks assert the CSS/markup contracts, not rendered geometry. Manually check Help wheel/keyboard scrolling and dismissal, title/version visibility, and Tab navigation through File name, Format, and Quality above the mobile tabs at narrow/short sizes in both languages. They do not replace browser layout, native decoder/encoder, listening, offline, or saved-file reopening checks.
