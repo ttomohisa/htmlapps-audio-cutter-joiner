@@ -237,8 +237,8 @@ test('Undo called without toast or clip focus does not steal an unrelated owner'
 });
 test('Help keyboard guidance is present and synchronized in both languages', () => {
   const guidance = {
-    ja: ['「範囲をリセット」にフォーカスがある場合', '開始欄または現在のタブへ戻します'],
-    en: ['When Reset trim has focus', 'Start or the current tab']
+    ja: ['Enter', 'Space', 'Tab', '上下・削除ボタン'],
+    en: ['Enter', 'Space', 'Tab', 'Up, Down, or Remove']
   };
   const h = loadApp(); for (const language of ['ja', 'en']) { h.app.applyLanguage(language); const text = h.app.I18N[language].clipKeyboardHelp; assert.ok(text); assert.equal(h.i18nElements.find(el => el.dataset.i18n === 'clipKeyboardHelp')?.textContent, text); for (const phrase of guidance[language]) assert.ok(text.includes(phrase), `${language} Help explains ${phrase}`); }
 });
