@@ -107,3 +107,13 @@ test('canonical repository check includes layout regressions for every shipped r
   assert.ok(check.includes('$rootHtml, $dist'));
   assert.ok(check.includes('$config.build.selfExtract.output'));
 });
+
+test('phone layouts hide only the informational footer and preserve editing tabs', () => {
+  const css = style(), phone = media(css, 'max-width: 720px');
+  assert.equal(declarations(phone, 'footer').display, 'none');
+  assert.notEqual(declarations(css.slice(0, css.indexOf('@media')), 'footer').display, 'none');
+  assert.equal(declarations(phone, '.mobile-tabs').display, 'grid');
+  assert.equal(declarations(phone, '.mobile-tabs').position, 'fixed');
+  assert.equal(declarations(phone, '.main').padding, '18px 12px calc(88px + env(safe-area-inset-bottom))');
+  assert.doesNotMatch(loadApp().html.match(/<footer\b[^>]*>[\s\S]*?<\/footer>/)[0], /<(?:button|input|select)\b/);
+});

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Hide the informational footer at phone widths while preserving action controls and the wider-screen footer.
+
 ## 1.0.4 - 2026-10-10
 
 - Return focus after successful Reset trim to the visible Start field or current mobile tab, preserving newer focus/modal ownership and existing navigation.

@@ -129,6 +129,7 @@ Desktop:
 
 Smartphone:
 
+- The informational page footer is hidden at the existing 720px phone breakpoint and retained on wider screens; action controls and their content clearance remain unchanged.
 - fixed bottom tabs for Clips, Edit, and Export
 - no horizontal scroll
 - no fixed UI covering the active content, including keyboard-focused export controls
