@@ -57,7 +57,7 @@
     .brand-mark svg { width: 100%; height: 100%; display: block; }
     .brand-copy { min-width: 0; }
     .brand-name { margin: 0; font-size: 17px; line-height: 1.2; letter-spacing: .01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
-    .version-badge { display: inline-flex; align-items: center; margin-left: 7px; padding: 1px 6px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--surface-muted); font-size: 10px; font-weight: 650; vertical-align: 2px; }
+    .version-badge { display: inline-flex; align-items: center; margin-left: 7px; padding: 1px 6px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--surface-muted); font-size: 11px; font-weight: 650; vertical-align: 2px; }
     .brand-meta { margin: 2px 0 0; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .header-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
     .language-button { min-width: 0; padding: 5px 1px; border: 0; background: transparent; color: var(--muted); font-size: 12px; font-weight: 750; letter-spacing: .02em; cursor: pointer; transition: color .16s ease, opacity .16s ease; }
@@ -67,6 +67,8 @@
     .icon-button:hover { border-color: var(--line-strong); background: var(--surface-hover); }
     .icon-button:active { transform: translateY(1px); }
     .icon-button svg { width: 18px; height: 18px; display: block; }
+    .dialog-close { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; cursor: pointer; }
+    .dialog-close svg { width: 18px; height: 18px; }
     .header-icon-button { width: auto; height: auto; padding: 5px 1px; border: 0; border-radius: 0; background: transparent; color: var(--muted); transition: color .16s ease, opacity .16s ease; }
     .header-icon-button:hover { border-color: transparent; background: transparent; color: var(--text); }
     .header-icon-button:active { transform: none; opacity: .65; }
@@ -75,7 +77,7 @@
     .page-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 0 2px 18px; }
     .page-intro h2 { margin: 0; font-size: clamp(21px, 3vw, 26px); line-height: 1.3; letter-spacing: -.025em; }
     .page-intro p { margin: 5px 0 0; max-width: 760px; color: var(--muted); font-size: 13px; }
-    .local-badge { display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; margin-top: 3px; padding: 7px 10px; border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line)); border-radius: 999px; color: var(--accent); background: var(--accent-soft); font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .local-badge { display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; margin-top: 3px; padding: 7px 0; border: 0; border-radius: 0; color: var(--accent); background: transparent; font-size: 12px; font-weight: 500; white-space: nowrap; }
     .local-badge svg { width: 15px; height: 15px; display: block; }
 
     /* The app lives inside the same workspace surface as the template. */
@@ -502,7 +504,7 @@
     </section>
   </main>
 
-  <footer><span data-i18n="footerName">Audio Cutter &amp; Joiner</span> · MIT License</footer>
+  <footer><span data-i18n="footerName">Audio Cutter &amp; Joiner</span> · MIT License · <span data-i18n="footerNote">カットも結合もブラウザー内で完結</span></footer>
 
   <nav class="mobile-tabs" aria-label="Mobile navigation">
     <button class="mobile-tab is-active" type="button" data-page-target="clips"><svg class="icon"><use href="#i-list"/></svg><span data-i18n="clips">クリップ</span></button>
@@ -513,7 +515,7 @@
   <div class="app-toast" id="toast" role="status" aria-live="polite" aria-atomic="true"><span class="app-toast-message" id="toastMessage"></span><button class="app-toast-action" id="toastAction" type="button" hidden data-i18n="undo">元に戻す</button></div>
 
   <dialog id="helpDialog" aria-labelledby="helpTitle">
-    <div class="dialog-header"><h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2><button class="icon-button" id="helpClose" type="button" aria-label="閉じる" title="閉じる"><svg class="icon"><use href="#i-x"/></svg></button></div>
+    <div class="dialog-header"><h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2><button class="dialog-close" id="helpClose" type="button" aria-label="閉じる" title="閉じる"><svg class="icon"><use href="#i-x"/></svg></button></div>
     <div class="dialog-body">
       <h3 data-i18n="whatTitle">このツールでできること</h3>
       <p data-i18n="whatCopy">複数の音声を追加し、使用範囲を調整・分割して、好きな順番に並べられます。上から順に連続試聴でき、隣り合う2クリップのつなぎ目だけを短く確認することもできます。</p>
@@ -535,7 +537,7 @@
   <audio id="sequenceAudio" preload="metadata"></audio>
 
   <script type="application/json" id="app-config">{"$schema":"./schemas/app-config.schema.json","name":"Audio Cutter \u0026 Joiner","nameJa":"音声カット・結合","slug":"audio-cutter-joiner","version":"1.0.4","description":"Trim, split, reorder, preview, and export multiple audio clips locally as MP3, M4A/AAC, or WAV.","descriptionJa":"音声をカット・分割・並べ替えし、完成順に試聴してMP3・M4A/AAC・WAVとして書き出せます。ファイルは外部へ送信しません。","defaultLanguage":"auto","repository":{"owner":"ttomohisa","name":"htmlapps-audio-cutter-joiner"},"build":{"output":"dist/index.html","blockRuntimeNetwork":true,"selfExtract":{"enabled":true,"output":"dist/index.self-extract.html"},"sizeBudget":{"readableWarningMb":25,"selfExtractWarningMb":12}}}</script>
-  <script type="application/json" id="build-manifest">{"schemaVersion":2,"builder":"single-html-app-template/1.2.2","generatedAtUtc":"2026-10-23T08:50:57.4093476Z","app":{"name":"Audio Cutter \u0026 Joiner","slug":"audio-cutter-joiner","version":"1.0.4"},"dependencies":[{"id":"lamejs","source":"url","version":"1.2.1","url":"https://raw.githubusercontent.com/zhuker/lamejs/260ecf8a2cf15b97e65442986c5c9149b0be7764/lame.min.js","license":"LGPL-3.0","homepage":"https://github.com/zhuker/lamejs","assets":[{"key":"encoder-js","mime":"text/javascript","bytes":156043,"sha256":"15d285e2587b3bdbfd18a68de6ce07cc074f7480a82c3815da2dc1c348ec6df4","embedded":true}]}]}</script>
+  <script type="application/json" id="build-manifest">{"schemaVersion":2,"builder":"single-html-app-template/1.2.2","generatedAtUtc":"2026-11-13T16:38:43.9988483Z","app":{"name":"Audio Cutter \u0026 Joiner","slug":"audio-cutter-joiner","version":"1.0.4"},"dependencies":[{"id":"lamejs","source":"url","version":"1.2.1","url":"https://raw.githubusercontent.com/zhuker/lamejs/260ecf8a2cf15b97e65442986c5c9149b0be7764/lame.min.js","license":"LGPL-3.0","homepage":"https://github.com/zhuker/lamejs","assets":[{"key":"encoder-js","mime":"text/javascript","bytes":156043,"sha256":"15d285e2587b3bdbfd18a68de6ce07cc074f7480a82c3815da2dc1c348ec6df4","embedded":true}]}]}</script>
   <script type="application/json" id="embedded-assets">{"schemaVersion":2,"dependencies":{}}</script>
   <script id="mp3-encoder-source">function lamejs(){function X(c){return new Int32Array(c)}function K(c){return new Float32Array(c)}function ca(c){if(1==c.length)return K(c[0]);var k=c[0];c=c.slice(1);for(var n=[],u=0;u<k;u++)n.push(ca(c));return n}function Ia(c){if(1==c.length)return X(c[0]);var k=c[0];c=c.slice(1);for(var n=[],u=0;u<k;u++)n.push(Ia(c));return n}function dc(c){if(1==c.length)return new Int16Array(c[0]);var k=c[0];c=c.slice(1);for(var n=[],u=0;u<k;u++)n.push(dc(c));return n}function Ob(c){if(1==c.length)return Array(c[0]);
 var k=c[0];c=c.slice(1);for(var n=[],u=0;u<k;u++)n.push(Ob(c));return n}function ra(c){this.ordinal=c}function G(c){this.ordinal=c}function la(c){this.ordinal=function(){return c}}function mc(){this.getLameVersion=function(){return"3.98.4"};this.getLameShortVersion=function(){return"3.98.4"};this.getLameVeryShortVersion=function(){return"LAME3.98r"};this.getPsyVersion=function(){return"0.93"};this.getLameUrl=function(){return"http://www.mp3dev.org/"};this.getLameOsBitness=function(){return"32bits"}}
@@ -851,7 +853,7 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
     const config=JSON.parse(document.getElementById('app-config').textContent);
     const I18N={
       ja:{
-        appName:'音声カット・結合',tagline:'音声を切って、並べて、つなぐ',help:'ヘルプ',languageSwitch:'英語に切り替え',close:'閉じる',playbackPosition:'再生位置',stop:'停止',introTitle:'音声を切って、並べて、つなぐ',workspaceTitle:'音声を編集',workspaceBody:'クリップを切り、並べ替え、完成順に試聴します。',footerName:'Audio Cutter & Joiner',
+        appName:'音声カット・結合',tagline:'音声を切って、並べて、つなぐ',help:'ヘルプ',languageSwitch:'英語に切り替え',close:'閉じる',playbackPosition:'再生位置',stop:'停止',introTitle:'音声を切って、並べて、つなぐ',workspaceTitle:'音声を編集',workspaceBody:'クリップを切り、並べ替え、完成順に試聴します。',footerName:'Audio Cutter & Joiner',footerNote:'カットも結合もブラウザー内で完結',
         intro:'音声ファイルを追加し、必要な範囲だけ残して好きな順番に並べ、完成順に連続試聴できます。編集は元ファイルを書き換えずブラウザ内で保持します。',local:'完全ローカル処理',clips:'クリップ',clipsSub:'上から順に1本の音声として扱います',dropTitle:'音声を追加',dropCopy:'ファイルを選択するか、ここにドロップ',chooseFiles:'音声を選択',addMore:'追加',
         preview:'カットと分割',previewShort:'編集',previewSub:'範囲を調整して分割します',emptyTitle:'音声を選択してください',emptyCopy:'追加したクリップを選ぶと、ここに波形と編集操作が表示されます。',analyzing:'波形を準備中',waveform:'波形',seekHint:'クリック / タップで再生位置を移動・左右ハンドルをドラッグ',waveWaiting:'波形を準備しています…',waveErrorTitle:'波形を作成できませんでした',
         trimTitle:'使用する範囲',trimCopy:'波形の左右ハンドルまたは時刻入力で調整します',trimStart:'開始',trimEnd:'終了',setStart:'現在位置を開始に',setEnd:'現在位置を終了に',resetTrim:'範囲をリセット',trimReset:'使用する範囲をリセットしました',resetTrimHelp:'「範囲をリセット」で選択中のクリップの使用範囲を戻せます。分割したクリップは、その区間内だけを復元します。リセットは「元に戻す」で取り消せます。',trimTip:'開始・終了位置は元の音声を書き換えず、編集情報として保持します。',selectedLength:'使用 {time}',previewSelection:'選択範囲を再生',previewJunction:'次とのつなぎ目を確認',splitHere:'ここで分割',splitAt:'分割位置 {time}',
@@ -863,7 +865,7 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
         clipsCount:'{count}件',remove:'削除',removed:'「{name}」を削除しました',invalid:'音声ファイルを選択してください。',loadFailed:'この音声を読み込めませんでした。対応形式を確認してください。',waveFailed:'ブラウザの音声デコード機能でこのファイルを解析できませんでした。再生できる場合でも波形を作成できないことがあります。',mono:'モノラル',stereo:'ステレオ',channelsN:'{count} ch',part:'区間',trimChanged:'使用する範囲を変更しました',trimInvalid:'開始位置は終了位置より前になるように指定してください。',splitDone:'クリップを2つに分割しました',splitInvalid:'開始・終了位置から少し離れた場所で分割してください。',undoDelete:'削除を元に戻しました',undoSplit:'分割を元に戻しました',undoTrim:'範囲変更を元に戻しました'
       },
       en:{
-        appName:'Audio Cutter & Joiner',tagline:'Trim, arrange, and join audio',help:'Help',languageSwitch:'Switch to Japanese',close:'Close',playbackPosition:'Playback position',stop:'Stop',introTitle:'Trim, arrange, and join audio',workspaceTitle:'Edit audio',workspaceBody:'Trim clips, reorder them, and preview the finished sequence.',footerName:'Audio Cutter & Joiner',
+        appName:'Audio Cutter & Joiner',tagline:'Trim, arrange, and join audio',help:'Help',languageSwitch:'Switch to Japanese',close:'Close',playbackPosition:'Playback position',stop:'Stop',introTitle:'Trim, arrange, and join audio',workspaceTitle:'Edit audio',workspaceBody:'Trim clips, reorder them, and preview the finished sequence.',footerName:'Audio Cutter & Joiner',footerNote:'Cutting and joining stay in the browser',
         intro:'Add audio files, keep only the parts you need, arrange them in any order, and preview the full sequence. Edits stay non-destructive and local to the browser.',local:'Fully local processing',clips:'Clips',clipsSub:'The list plays from top to bottom',dropTitle:'Add audio',dropCopy:'Choose files or drop them here',chooseFiles:'Choose audio',addMore:'Add',
         preview:'Trim & split',previewShort:'Edit',previewSub:'Adjust the range and split clips',emptyTitle:'Choose an audio clip',emptyCopy:'Select an added clip to show its waveform and editing controls here.',analyzing:'Preparing waveform',waveform:'Waveform',seekHint:'Click / tap to move the playhead · drag the left/right handles',waveWaiting:'Preparing waveform…',waveErrorTitle:'Could not create the waveform',
         trimTitle:'Keep range',trimCopy:'Adjust with the waveform handles or precise time fields',trimStart:'Start',trimEnd:'End',setStart:'Set start to playhead',setEnd:'Set end to playhead',resetTrim:'Reset trim',trimReset:'Reset the kept range',resetTrimHelp:'Reset trim restores the selected clip’s full range. For a split fragment, it restores only that fragment’s range. Undo restores the previous trim.',trimTip:'Start and end positions are stored as edit data. The original audio file is not modified.',selectedLength:'Keep {time}',previewSelection:'Preview selection',previewJunction:'Preview next junction',splitHere:'Split here',splitAt:'Split at {time}',
