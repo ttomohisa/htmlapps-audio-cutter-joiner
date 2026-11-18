@@ -37,7 +37,7 @@ function syntheticWav() {
 
 async function verifyNativeWavRoundTrip(page, label, width) {
   await page.locator('#fileInput').setInputFiles({ name: 'test-tone.wav', mimeType: 'audio/wav', buffer: syntheticWav() });
-  await page.locator('#editorShell').waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
+  await page.locator('#editorShell').waitFor({ state: 'visible', timeout: 15000 });
   if (width <= PHONE_WIDTH) await page.locator('.mobile-tab[data-page-target="export"]').click();
   await page.locator('#outputFormatSelect').selectOption('wav');
   await page.locator('#exportButton').click();
@@ -66,7 +66,7 @@ async function main() {
     cases.push({file:'dist/index.self-extract.html', language:'en', width:360, height:640});
     cases.push({file:'audio-cutter-joiner.html', language:'ja', width:1360, height:900});
     for (const {file, language, width, height} of cases) {
-      const context = await browser.newContext({viewport:{width,height}, locale:language, reducedMotion:'reduce'});
+      const context = await browser.newContext({viewport:{width,height}, locale:language, reducedMotion:'reduce', acceptDownloads:true});
       const page = await context.newPage();
       const errors = [], requests = [];
       const label = `${file} ${language} ${width}x${height}`;
