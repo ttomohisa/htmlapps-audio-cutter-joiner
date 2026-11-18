@@ -242,3 +242,98 @@ test('Help keyboard guidance is present and synchronized in both languages', () 
   };
   const h = loadApp(); for (const language of ['ja', 'en']) { h.app.applyLanguage(language); const text = h.app.I18N[language].clipKeyboardHelp; assert.ok(text); assert.equal(h.i18nElements.find(el => el.dataset.i18n === 'clipKeyboardHelp')?.textContent, text); for (const phrase of guidance[language]) assert.ok(text.includes(phrase), `${language} Help explains ${phrase}`); }
 });
+
+
+test('reselecting a clip while metadata is pending keeps the original load alive', async () => {
+  const h = loadApp(), [clip] = h.seed();
+  clip.sourceDuration = NaN; clip.baseEnd = NaN; clip.trimEnd = NaN;
+  const pending = h.delayMetadata();
+  const initial = h.app.selectClip(clip.id);
+  await pending.begun;
+  await h.app.selectClip(clip.id);
+  pending.resolve();
+  await initial;
+  assert.equal(h.app.state.selectedId, clip.id);
+  assert.notEqual(h.app.els.infoDuration.textContent, '—', 'metadata must refresh the visible selection');
+});
+
+test('an older clip metadata response cannot overwrite another clip', async () => {
+  const h = loadApp(), [oldClip, selectedClip] = h.seed(2);
+  const pending = h.delayMetadata();
+  const oldSelection = h.app.selectClip(oldClip.id);
+  await pending.begun;
+  await h.app.selectClip(selectedClip.id);
+  const oldDuration = oldClip.sourceDuration;
+  h.app.els.audio.duration = 7;
+  pending.resolve();
+  await oldSelection;
+  assert.equal(oldClip.sourceDuration, oldDuration);
+  assert.equal(h.app.state.selectedId, selectedClip.id);
+});
+
+test('outdated waveform errors are ignored after selecting a cached clip', async () => {
+  const h = loadApp(), [oldClip, selectedClip] = h.seed(2);
+  oldClip.peaks = null;
+  const pending = h.delayDecode();
+  const oldSelection = h.app.selectClip(oldClip.id);
+  await pending.begun;
+  await h.app.selectClip(selectedClip.id);
+  pending.reject(new Error('stale decoder result'));
+  await oldSelection;
+  assert.equal(h.app.state.selectedId, selectedClip.id);
+  assert.equal(h.app.els.waveError.hidden, true);
+  assert.equal(h.app.els.analysisState.hidden, true);
+  assert.equal(h.errors.length, 0, 'an obsolete decoder error should not surface');
+});
+
+test('removing the last clip prevents its pending waveform from restoring the editor', async () => {
+  const h = loadApp(), [clip] = h.seed();
+  clip.peaks = null;
+  const pending = h.delayDecode();
+  const selection = h.app.selectClip(clip.id);
+  await pending.begun;
+  h.app.removeClip(clip.id);
+  pending.reject(new Error('removed file decoder result'));
+  await selection;
+  assert.equal(h.app.state.selectedId, null);
+  assert.equal(h.app.els.editorEmpty.hidden, false);
+  assert.equal(h.app.els.waveError.hidden, true);
+  assert.equal(h.app.els.analysisState.hidden, true);
+});
+
+test('interrupted playback from an older segment does not stop the next segment', async () => {
+  const h = loadApp(); h.seed(2);
+  let firstReject, attempts = 0;
+  const audio = h.app.els.sequenceAudio, nativePlay = audio.play;
+  audio.play = function () {
+    attempts++;
+    if (attempts === 1) return new Promise((resolve, reject) => { firstReject = reject; });
+    return nativePlay.call(this);
+  };
+  const started = h.app.startSequence(h.app.buildAllSegments(), 'all');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(typeof firstReject, 'function');
+  audio.dispatch('ended');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(h.app.state.sequenceIndex, 1);
+  firstReject(new Error('old play interrupted'));
+  await started;
+  assert.equal(h.app.state.sequencePlaying, true);
+  assert.equal(h.app.state.sequenceIndex, 1);
+});
+
+test('classic WAV header rejects lengths that overflow the RIFF size field', () => {
+  const h = loadApp();
+  const maximumData = 0xffffffff - 36;
+  const header = h.app.wavHeader(maximumData);
+  assert.equal(new DataView(header.buffer).getUint32(4, true), 0xffffffff);
+  assert.throws(() => h.app.wavHeader(maximumData + 1), /WAV exceeds the 4 GiB RIFF limit/);
+});
+
+test('waveform buckets place sample peaks at their proportional positions', () => {
+  const h = loadApp(), data = new Float32Array(11); data[2] = 1;
+  const buffer = { length: data.length, numberOfChannels: 1, getChannelData: () => data };
+  const peaks = h.app.extractPeaks(buffer, 4);
+  assert.equal(peaks.length, 4);
+  assert.deepEqual(Array.from(peaks), [0, 1, 0, 0]);
+});
