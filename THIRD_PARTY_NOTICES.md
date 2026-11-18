@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-Audio Cutter & Joiner v1.0.0 embeds the following third-party component in the generated standalone HTML.
+Audio Cutter & Joiner embeds the following third-party component in the generated standalone HTML.
 
 ## lamejs 1.2.1
 
