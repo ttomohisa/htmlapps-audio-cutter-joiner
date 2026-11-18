@@ -79,10 +79,12 @@ jobs:
             git tag -a "$tag" -m "Release $tag"
             git push origin "refs/tags/$tag"
           fi
+          test -s "release-assets/audio-cutter-joiner.html"
+          test -s "release-assets/dist/index.self-extract.html"
           if ! gh release view "$tag" >/dev/null 2>&1; then
             gh release create "$tag" \
               "release-assets/audio-cutter-joiner.html" \
-              "release-assets/index.self-extract.html" \
+              "release-assets/dist/index.self-extract.html" \
               --verify-tag --title "$tag" --generate-notes
           else
             echo "GitHub Release $tag already exists; leaving it unchanged."
