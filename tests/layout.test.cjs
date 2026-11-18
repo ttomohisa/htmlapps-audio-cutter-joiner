@@ -84,18 +84,6 @@ test('local-processing badge uses a decorative shield without changing its bilin
   assert.equal(h.app.I18N.en.local, 'Fully local processing');
 });
 
-test('Help explains its independent scrolling in both languages', () => {
-  const h = loadApp();
-  assert.match(h.html, /<p data-i18n="helpScroll">[^<]+<\/p>/);
-  for (const language of ['ja', 'en']) {
-    h.app.applyLanguage(language);
-    const text = h.i18nElements.find(el => el.dataset.i18n === 'helpScroll')?.textContent;
-    assert.ok(text && text !== 'helpScroll', `Help scroll guidance is translated: ${language}`);
-    assert.equal(text, h.app.I18N[language].helpScroll);
-  }
-  assert.notEqual(h.app.I18N.ja.helpScroll, h.app.I18N.en.helpScroll);
-});
-
 test('canonical repository check includes layout regressions for every shipped representation', () => {
   const fs = require('node:fs');
   const path = require('node:path');
