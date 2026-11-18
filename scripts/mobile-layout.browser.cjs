@@ -16,6 +16,44 @@ async function exerciseActions(page, width, label) {
   }
 }
 
+function syntheticWav() {
+  const frames = 22050, sampleRate = 44100, out = Buffer.alloc(44 + frames * 2);
+  out.write('RIFF', 0);
+  out.writeUInt32LE(36 + frames * 2, 4);
+  out.write('WAVE', 8);
+  out.write('fmt ', 12);
+  out.writeUInt32LE(16, 16);
+  out.writeUInt16LE(1, 20);
+  out.writeUInt16LE(1, 22);
+  out.writeUInt32LE(sampleRate, 24);
+  out.writeUInt32LE(sampleRate * 2, 28);
+  out.writeUInt16LE(2, 32);
+  out.writeUInt16LE(16, 34);
+  out.write('data', 36);
+  out.writeUInt32LE(frames * 2, 40);
+  for (let i = 0; i < frames; i++) out.writeInt16LE(Math.round(Math.sin(i * 2 * Math.PI * 440 / sampleRate) * 8000), 44 + i * 2);
+  return out;
+}
+
+async function verifyNativeWavRoundTrip(page, label, width) {
+  await page.locator('#fileInput').setInputFiles({ name: 'test-tone.wav', mimeType: 'audio/wav', buffer: syntheticWav() });
+  await page.locator('#editorShell').waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
+  if (width <= PHONE_WIDTH) await page.locator('.mobile-tab[data-page-target="export"]').click();
+  await page.locator('#outputFormatSelect').selectOption('wav');
+  await page.locator('#exportButton').click();
+  await page.locator('#exportResult').waitFor({ state: 'visible', timeout: 20000 });
+  const downloading = page.waitForEvent('download');
+  await page.locator('#downloadButton').click();
+  const download = await downloading;
+  assert.match(download.suggestedFilename(), /\.wav$/, label + ': saved WAV name');
+  const savedPath = await download.path();
+  const bytes = fs.readFileSync(savedPath);
+  assert.equal(bytes.toString('ascii', 0, 4), 'RIFF', label + ': WAV RIFF');
+  assert.equal(bytes.toString('ascii', 8, 12), 'WAVE', label + ': WAV container');
+  assert.ok(bytes.length > 44, label + ': WAV contains audio samples');
+  assert.equal(bytes.readUInt32LE(40), bytes.length - 44, label + ': valid PCM payload length');
+}
+
 async function main() {
   fs.mkdirSync(artifacts, {recursive:true});
   const browser = await chromium.launch();
@@ -50,6 +88,10 @@ async function main() {
         assert.equal(await page.locator('body > footer').isVisible(), false, label + ': phone resize');
         await page.setViewportSize({width,height});
         if (file === 'dist/index.html' && [1360,320].includes(width)) await page.screenshot({path:path.join(artifacts, `${language}-${width}.png`), fullPage:true});
+
+        if (file === 'dist/index.html' && ((language === 'ja' && width === 1360) || (language === 'en' && width === 320))) {
+          await verifyNativeWavRoundTrip(page, label, width);
+        }
 
         await page.locator(HELP).click();
         const body = page.locator('#helpDialog .dialog-body');
