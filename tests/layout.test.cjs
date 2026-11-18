@@ -84,6 +84,12 @@ test('local-processing badge uses a decorative shield without changing its bilin
   assert.equal(h.app.I18N.en.local, 'Fully local processing');
 });
 
+test('phone hides the informational local-processing badge while desktop retains it', () => {
+  const css = style();
+  assert.equal(declarations(css, '.local-badge').display, 'inline-flex');
+  assert.equal(declarations(media(css, 'max-width: 720px'), '.local-badge').display, 'none');
+});
+
 test('canonical repository check includes layout regressions for every shipped representation', () => {
   const fs = require('node:fs');
   const path = require('node:path');
