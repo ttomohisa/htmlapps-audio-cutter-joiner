@@ -259,7 +259,7 @@
       .language-button, .header-icon-button { padding-block: 6px; }
       .main { padding: 18px 12px calc(88px + env(safe-area-inset-bottom)); }
       .page-intro { align-items: stretch; flex-direction: column; gap: 10px; padding-bottom: 14px; }
-      .local-badge { align-self: flex-start; }
+      .local-badge { display: none; }
       .workspace { padding: 14px; border-radius: 14px; }
       .workspace-head { align-items: stretch; flex-direction: column; }
       .workspace-columns { display: block; }
@@ -357,7 +357,7 @@
         </div>
         <div class="brand-copy">
           <p class="brand-name"><span data-i18n="appName">音声カット・結合</span><span class="version-badge" id="versionBadge">v1.0.4</span></p>
-          <p class="brand-meta" data-i18n="tagline">音声を切って、並べて、つなぐ</p>
+          <p class="brand-meta" data-i18n="tagline">音声をカット・結合</p>
         </div>
       </div>
       <div class="header-actions">
@@ -370,8 +370,8 @@
   <main class="main">
     <section class="page-intro" aria-labelledby="heroTitle">
       <div>
-        <h2 id="heroTitle" data-i18n="introTitle">音声を切って、並べて、つなぐ</h2>
-        <p data-i18n="intro">音声ファイルを追加し、必要な範囲だけ残して好きな順番に並べ、完成順に連続試聴できます。編集は元ファイルを書き換えずブラウザ内で保持します。</p>
+        <h2 id="heroTitle" data-i18n="introTitle">音声をカット・結合</h2>
+        <p data-i18n="intro">音声の必要な部分を切り出し、順番を並べて1つのファイルに保存できます。</p>
       </div>
       <div class="local-badge"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-shield"/></svg><span data-i18n="local">完全ローカル処理</span></div>
     </section>
@@ -546,8 +546,8 @@
     const config=JSON.parse(document.getElementById('app-config').textContent);
     const I18N={
       ja:{
-        appName:'音声カット・結合',tagline:'音声を切って、並べて、つなぐ',help:'ヘルプ',languageSwitch:'英語に切り替え',close:'閉じる',playbackPosition:'再生位置',stop:'停止',introTitle:'音声を切って、並べて、つなぐ',workspaceTitle:'音声を編集',workspaceBody:'クリップを切り、並べ替え、完成順に試聴します。',footerName:'Audio Cutter & Joiner',footerNote:'カットも結合もブラウザー内で完結',
-        intro:'音声ファイルを追加し、必要な範囲だけ残して好きな順番に並べ、完成順に連続試聴できます。編集は元ファイルを書き換えずブラウザ内で保持します。',local:'完全ローカル処理',clips:'クリップ',clipsSub:'上から順に1本の音声として扱います',dropTitle:'音声を追加',dropCopy:'ファイルを選択するか、ここにドロップ',chooseFiles:'音声を選択',addMore:'追加',
+        appName:'音声カット・結合',tagline:'音声をカット・結合',help:'ヘルプ',languageSwitch:'英語に切り替え',close:'閉じる',playbackPosition:'再生位置',stop:'停止',introTitle:'音声をカット・結合',workspaceTitle:'音声を編集',workspaceBody:'クリップを切り、並べ替え、完成順に試聴します。',footerName:'Audio Cutter & Joiner',footerNote:'カットも結合もブラウザー内で完結',
+        intro:'音声の必要な部分を切り出し、順番を並べて1つのファイルに保存できます。',local:'完全ローカル処理',clips:'クリップ',clipsSub:'上から順に1本の音声として扱います',dropTitle:'音声を追加',dropCopy:'ファイルを選択するか、ここにドロップ',chooseFiles:'音声を選択',addMore:'追加',
         preview:'カットと分割',previewShort:'編集',previewSub:'範囲を調整して分割します',emptyTitle:'音声を選択してください',emptyCopy:'追加したクリップを選ぶと、ここに波形と編集操作が表示されます。',analyzing:'波形を準備中',waveform:'波形',seekHint:'クリック / タップで再生位置を移動・左右ハンドルをドラッグ',waveWaiting:'波形を準備しています…',waveErrorTitle:'波形を作成できませんでした',
         trimTitle:'使用する範囲',trimCopy:'波形の左右ハンドルまたは時刻入力で調整します',trimStart:'開始',trimEnd:'終了',setStart:'現在位置を開始に',setEnd:'現在位置を終了に',resetTrim:'範囲をリセット',trimReset:'使用する範囲をリセットしました',resetTrimHelp:'「範囲をリセット」で選択中のクリップの使用範囲を戻せます。分割したクリップは、その区間内だけを復元します。リセットは「元に戻す」で取り消せます。',trimTip:'開始・終了位置は元の音声を書き換えず、編集情報として保持します。',selectedLength:'使用 {time}',previewSelection:'選択範囲を再生',previewJunction:'次とのつなぎ目を確認',splitHere:'ここで分割',splitAt:'分割位置 {time}',
         duration:'使用する長さ',size:'元ファイル',sampleRate:'サンプルレート',channels:'チャンネル',undo:'元に戻す',sequenceTitle:'完成順を試聴',previewAll:'最初から試聴',stopPreview:'試聴を停止',sequenceSummary:'{count}件 · 合計 {time}',sequenceSummaryPending:'{count}件 · 長さは試聴時に確認',sequencePlaying:'{current} / {count} · {name}',junctionPlaying:'つなぎ目を確認中 · {name}',previewFinished:'全体の試聴が終わりました',junctionFinished:'つなぎ目の確認が終わりました',
@@ -558,8 +558,8 @@
         clipsCount:'{count}件',remove:'削除',removed:'「{name}」を削除しました',invalid:'音声ファイルを選択してください。',loadFailed:'この音声を読み込めませんでした。対応形式を確認してください。',waveFailed:'ブラウザの音声デコード機能でこのファイルを解析できませんでした。再生できる場合でも波形を作成できないことがあります。',mono:'モノラル',stereo:'ステレオ',channelsN:'{count} ch',part:'区間',trimChanged:'使用する範囲を変更しました',trimInvalid:'開始位置は終了位置より前になるように指定してください。',splitDone:'クリップを2つに分割しました',splitInvalid:'開始・終了位置から少し離れた場所で分割してください。',undoDelete:'削除を元に戻しました',undoSplit:'分割を元に戻しました',undoTrim:'範囲変更を元に戻しました'
       },
       en:{
-        appName:'Audio Cutter & Joiner',tagline:'Trim, arrange, and join audio',help:'Help',languageSwitch:'Switch to Japanese',close:'Close',playbackPosition:'Playback position',stop:'Stop',introTitle:'Trim, arrange, and join audio',workspaceTitle:'Edit audio',workspaceBody:'Trim clips, reorder them, and preview the finished sequence.',footerName:'Audio Cutter & Joiner',footerNote:'Cutting and joining stay in the browser',
-        intro:'Add audio files, keep only the parts you need, arrange them in any order, and preview the full sequence. Edits stay non-destructive and local to the browser.',local:'Fully local processing',clips:'Clips',clipsSub:'The list plays from top to bottom',dropTitle:'Add audio',dropCopy:'Choose files or drop them here',chooseFiles:'Choose audio',addMore:'Add',
+        appName:'Audio Cutter & Joiner',tagline:'Cut and join audio',help:'Help',languageSwitch:'Switch to Japanese',close:'Close',playbackPosition:'Playback position',stop:'Stop',introTitle:'Cut and join audio',workspaceTitle:'Edit audio',workspaceBody:'Trim clips, reorder them, and preview the finished sequence.',footerName:'Audio Cutter & Joiner',footerNote:'Cutting and joining stay in the browser',
+        intro:'Trim audio clips, put them in order, and save them as one file.',local:'Fully local processing',clips:'Clips',clipsSub:'The list plays from top to bottom',dropTitle:'Add audio',dropCopy:'Choose files or drop them here',chooseFiles:'Choose audio',addMore:'Add',
         preview:'Trim & split',previewShort:'Edit',previewSub:'Adjust the range and split clips',emptyTitle:'Choose an audio clip',emptyCopy:'Select an added clip to show its waveform and editing controls here.',analyzing:'Preparing waveform',waveform:'Waveform',seekHint:'Click / tap to move the playhead · drag the left/right handles',waveWaiting:'Preparing waveform…',waveErrorTitle:'Could not create the waveform',
         trimTitle:'Keep range',trimCopy:'Adjust with the waveform handles or precise time fields',trimStart:'Start',trimEnd:'End',setStart:'Set start to playhead',setEnd:'Set end to playhead',resetTrim:'Reset trim',trimReset:'Reset the kept range',resetTrimHelp:'Reset trim restores the selected clip’s full range. For a split fragment, it restores only that fragment’s range. Undo restores the previous trim.',trimTip:'Start and end positions are stored as edit data. The original audio file is not modified.',selectedLength:'Keep {time}',previewSelection:'Preview selection',previewJunction:'Preview next junction',splitHere:'Split here',splitAt:'Split at {time}',
         duration:'Kept length',size:'Source file',sampleRate:'Sample rate',channels:'Channels',undo:'Undo',sequenceTitle:'Preview sequence',previewAll:'Preview from start',stopPreview:'Stop preview',sequenceSummary:'{count} clips · {time} total',sequenceSummaryPending:'{count} clips · duration updates during preview',sequencePlaying:'{current} / {count} · {name}',junctionPlaying:'Previewing junction · {name}',previewFinished:'Sequence preview finished',junctionFinished:'Junction preview finished',
