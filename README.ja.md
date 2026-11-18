@@ -1,7 +1,7 @@
 # 音声カット・結合
 
 [![GitHub Pages](https://github.com/ttomohisa/htmlapps-audio-cutter-joiner/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ttomohisa/htmlapps-audio-cutter-joiner/actions/workflows/deploy-pages.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 [![Single HTML](https://img.shields.io/badge/distribution-single%20HTML-0ea5e9)](https://ttomohisa.github.io/htmlapps-audio-cutter-joiner/)
 
 [English README](README.md)
@@ -156,7 +156,7 @@ build-standalone.bat -ForceDownload
 | --- | ---: | --- | --- |
 | lamejs | 1.2.1 | LGPL-3.0 | ローカルMP3エンコード |
 
-アプリ本体はMIT Licenseです。内包する`lamejs`はLGPL-3.0のまま利用します。詳細は[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)と`licenses/LGPL-3.0.txt`を参照してください。
+アプリ本体はGPL-3.0です。内包する`lamejs`はLGPL-3.0のまま利用します。詳細は[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)と`licenses/LGPL-3.0.txt`を参照してください。
 
 ## Contributing
 
@@ -166,7 +166,7 @@ build-standalone.bat -ForceDownload
 
 Copyright © 2026 ttomohisa
 
-アプリ本体は[MIT License](LICENSE)です。第三者コンポーネントのライセンスは[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)に記載しています。
+アプリ本体は[GNU General Public License v3](LICENSE)です。第三者コンポーネントのライセンスは[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)に記載しています。
 
 ## 範囲のリセットと最新の書き出し
 
