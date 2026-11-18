@@ -1,7 +1,7 @@
 # Audio Cutter & Joiner
 
 [![GitHub Pages](https://github.com/ttomohisa/htmlapps-audio-cutter-joiner/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ttomohisa/htmlapps-audio-cutter-joiner/actions/workflows/deploy-pages.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 [![Single HTML](https://img.shields.io/badge/distribution-single%20HTML-0ea5e9)](https://ttomohisa.github.io/htmlapps-audio-cutter-joiner/)
 
 [日本語版 README](README.ja.md)
@@ -157,7 +157,7 @@ See [VERIFY_OFFLINE.md](VERIFY_OFFLINE.md) for the release verification procedur
 | --- | ---: | --- | --- |
 | lamejs | 1.2.1 | LGPL-3.0 | Local MP3 encoding |
 
-The application code is MIT-licensed. The embedded `lamejs` component remains under LGPL-3.0; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and `licenses/LGPL-3.0.txt`.
+The application code is GPL-3.0-licensed. The embedded `lamejs` component remains under LGPL-3.0; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and `licenses/LGPL-3.0.txt`.
 
 ## Contributing
 
@@ -167,7 +167,7 @@ Bug reports and feature proposals are welcome through GitHub Issues. Please keep
 
 Copyright © 2026 ttomohisa
 
-Application code is licensed under the [MIT License](LICENSE). Third-party components retain their own licenses as described in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Application code is licensed under the [GNU General Public License v3](LICENSE). Third-party components retain their own licenses as described in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Reset trim and current exports
 
