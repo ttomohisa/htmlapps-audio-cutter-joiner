@@ -39,7 +39,21 @@ async function verifyNativeWavRoundTrip(page, label, width) {
   await page.locator('#fileInput').setInputFiles({ name: 'test-tone.wav', mimeType: 'audio/wav', buffer: syntheticWav() });
   await page.locator('#editorShell').waitFor({ state: 'visible', timeout: 15000 });
   assert.equal(await page.locator('#pageIntro').isVisible(), width > PHONE_WIDTH, label + ': intro after file import');
-  if (width <= PHONE_WIDTH) await page.locator('.mobile-tab[data-page-target="export"]').click();
+  if (width <= PHONE_WIDTH) {
+    assert.equal(await page.locator('.workspace').evaluate(el => getComputedStyle(el).borderTopWidth), '0px', label + ': outer card border removed');
+    assert.equal(await page.locator('.sequence-panel').evaluate(el => getComputedStyle(el).borderLeftWidth), '0px', label + ': preview card no longer boxed');
+    await page.locator('.mobile-tab[data-page-target="editor"]').click();
+    await page.evaluate(() => scrollTo({top:0,behavior:'instant'}));
+    await page.waitForFunction(() => scrollY < 5, null, {timeout:5000});
+    const travel = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+    assert.ok(travel > 330, label + ': editor has room for natural scrolling');
+    await page.evaluate(() => scrollTo({top:330,behavior:'instant'}));
+    await page.waitForFunction(() => document.getElementById('appHeader').classList.contains('is-scroll-hidden'), null, {timeout:5000});
+    await page.evaluate(() => scrollTo({top:28,behavior:'instant'}));
+    await page.waitForFunction(() => !document.getElementById('appHeader').classList.contains('is-scroll-hidden'), null, {timeout:5000});
+    await page.locator('.mobile-tab[data-page-target="export"]').click();
+    assert.equal(await page.locator('#appHeader').evaluate(el => el.classList.contains('is-scroll-hidden')), false, label + ': header remains visible on other tabs');
+  }
   await page.locator('#outputFormatSelect').selectOption('wav');
   await page.locator('#exportButton').click();
   await page.locator('#exportResult').waitFor({ state: 'visible', timeout: 20000 });
