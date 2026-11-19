@@ -259,6 +259,8 @@
       .language-button, .header-icon-button { padding-block: 6px; }
       .main { padding: 18px 12px calc(88px + env(safe-area-inset-bottom)); }
       .page-intro { align-items: stretch; flex-direction: column; gap: 10px; padding-bottom: 14px; }
+      .page-intro h2 { display: none; }
+      .page-intro.has-clips { display: none; }
       .local-badge { display: none; }
       .workspace { padding: 14px; border-radius: 14px; }
       .workspace-head { align-items: stretch; flex-direction: column; }
@@ -368,7 +370,7 @@
   </header>
 
   <main class="main">
-    <section class="page-intro" aria-labelledby="heroTitle">
+    <section class="page-intro" id="pageIntro" aria-labelledby="heroTitle">
       <div>
         <h2 id="heroTitle" data-i18n="introTitle">音声をカット・結合</h2>
         <p data-i18n="intro">音声の必要な部分を切り出し、順番を並べて1つのファイルに保存できます。</p>
@@ -577,7 +579,7 @@
     };
     const $=id=>document.getElementById(id);
     const els={
-      fileInput:$('fileInput'),dropZone:$('dropZone'),clipArea:$('clipArea'),clipList:$('clipList'),clipCount:$('clipCount'),addButton:$('addButton'),
+      fileInput:$('fileInput'),dropZone:$('dropZone'),pageIntro:$('pageIntro'),clipArea:$('clipArea'),clipList:$('clipList'),clipCount:$('clipCount'),addButton:$('addButton'),
       sequenceSummary:$('sequenceSummary'),previewAllButton:$('previewAllButton'),previewAllLabel:$('previewAllLabel'),previewAllIcon:$('previewAllIcon'),
       editorEmpty:$('editorEmpty'),editorShell:$('editorShell'),currentName:$('currentName'),currentMeta:$('currentMeta'),analysisState:$('analysisState'),waveCanvas:$('waveCanvas'),waveOverlay:$('waveOverlay'),waveError:$('waveError'),waveErrorText:$('waveErrorText'),
       audio:$('audio'),sequenceAudio:$('sequenceAudio'),playButton:$('playButton'),playUse:$('playUse'),stopButton:$('stopButton'),seekRange:$('seekRange'),currentTime:$('currentTime'),durationTime:$('durationTime'),trimStartInput:$('trimStartInput'),trimEndInput:$('trimEndInput'),trimLength:$('trimLength'),setStartButton:$('setStartButton'),setEndButton:$('setEndButton'),resetTrimButton:$('resetTrimButton'),previewSelectionButton:$('previewSelectionButton'),previewJunctionButton:$('previewJunctionButton'),splitButton:$('splitButton'),splitPosition:$('splitPosition'),
@@ -661,6 +663,7 @@
     }
     function renderClips(){
       const focus=clipFocusTarget();
+      els.pageIntro.classList.toggle('has-clips',state.clips.length>0);
       renderExportUi();
       els.clipArea.hidden=state.clips.length===0;els.dropZone.hidden=state.clips.length>0;els.clipCount.textContent=t('clipsCount',{count:state.clips.length});els.clipList.replaceChildren();
       state.clips.forEach((clip,index)=>{
