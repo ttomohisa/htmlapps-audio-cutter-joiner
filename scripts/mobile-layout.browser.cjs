@@ -16,6 +16,64 @@ async function exerciseActions(page, width, label) {
   }
 }
 
+function syntheticWav() {
+  const frames = 22050, sampleRate = 44100, out = Buffer.alloc(44 + frames * 2);
+  out.write('RIFF', 0);
+  out.writeUInt32LE(36 + frames * 2, 4);
+  out.write('WAVE', 8);
+  out.write('fmt ', 12);
+  out.writeUInt32LE(16, 16);
+  out.writeUInt16LE(1, 20);
+  out.writeUInt16LE(1, 22);
+  out.writeUInt32LE(sampleRate, 24);
+  out.writeUInt32LE(sampleRate * 2, 28);
+  out.writeUInt16LE(2, 32);
+  out.writeUInt16LE(16, 34);
+  out.write('data', 36);
+  out.writeUInt32LE(frames * 2, 40);
+  for (let i = 0; i < frames; i++) out.writeInt16LE(Math.round(Math.sin(i * 2 * Math.PI * 440 / sampleRate) * 8000), 44 + i * 2);
+  return out;
+}
+
+async function verifyNativeWavRoundTrip(page, label, width) {
+  await page.locator('#fileInput').setInputFiles({ name: 'test-tone.wav', mimeType: 'audio/wav', buffer: syntheticWav() });
+  await page.locator('#editorShell').waitFor({ state: 'visible', timeout: 15000 });
+  assert.equal(await page.locator('#pageIntro').isVisible(), width > PHONE_WIDTH, label + ': intro after file import');
+  if (width <= PHONE_WIDTH) {
+    assert.equal(await page.locator('.workspace').evaluate(el => getComputedStyle(el).borderTopWidth), '0px', label + ': outer card border removed');
+    assert.equal(await page.locator('.sequence-panel').evaluate(el => getComputedStyle(el).borderLeftWidth), '0px', label + ': preview card no longer boxed');
+    await page.locator('.mobile-tab[data-page-target="editor"]').click();
+    await page.evaluate(() => scrollTo({top:0,behavior:'instant'}));
+    await page.waitForFunction(() => scrollY < 5, null, {timeout:5000});
+    const travel = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+    assert.ok(travel > 330, label + ': editor has room for natural scrolling');
+    await page.evaluate(() => scrollTo({top:330,behavior:'instant'}));
+    await page.waitForFunction(() => document.getElementById('appHeader').classList.contains('is-scroll-hidden'), null, {timeout:5000});
+    await page.evaluate(() => scrollTo({top:28,behavior:'instant'}));
+    await page.waitForFunction(() => !document.getElementById('appHeader').classList.contains('is-scroll-hidden'), null, {timeout:5000});
+    await page.locator('.mobile-tab[data-page-target="export"]').click();
+    assert.equal(await page.locator('#appHeader').evaluate(el => el.classList.contains('is-scroll-hidden')), false, label + ': header remains visible on other tabs');
+  }
+  await page.locator('#outputFormatSelect').selectOption('wav');
+  await page.locator('#exportButton').click();
+  await page.locator('#exportResult').waitFor({ state: 'visible', timeout: 20000 });
+  const downloading = page.waitForEvent('download');
+  await page.locator('#downloadButton').click();
+  const download = await downloading;
+  assert.match(download.suggestedFilename(), /\.wav$/, label + ': saved WAV name');
+  const savedPath = await download.path();
+  const bytes = fs.readFileSync(savedPath);
+  assert.equal(bytes.toString('ascii', 0, 4), 'RIFF', label + ': WAV RIFF');
+  assert.equal(bytes.toString('ascii', 8, 12), 'WAVE', label + ': WAV container');
+  assert.ok(bytes.length > 44, label + ': WAV contains audio samples');
+  assert.equal(bytes.readUInt32LE(40), bytes.length - 44, label + ': valid PCM payload length');
+  if (width <= PHONE_WIDTH) {
+    await page.locator('.mobile-tab[data-page-target="clips"]').click();
+    await page.locator('.clip-action.remove').first().click();
+    assert.equal(await page.locator('#pageIntro').isVisible(), true, label + ': intro restored after removing final clip');
+  }
+}
+
 async function main() {
   fs.mkdirSync(artifacts, {recursive:true});
   const browser = await chromium.launch();
@@ -28,7 +86,7 @@ async function main() {
     cases.push({file:'dist/index.self-extract.html', language:'en', width:360, height:640});
     cases.push({file:'audio-cutter-joiner.html', language:'ja', width:1360, height:900});
     for (const {file, language, width, height} of cases) {
-      const context = await browser.newContext({viewport:{width,height}, locale:language, reducedMotion:'reduce'});
+      const context = await browser.newContext({viewport:{width,height}, locale:language, reducedMotion:'reduce', acceptDownloads:true});
       const page = await context.newPage();
       const errors = [], requests = [];
       const label = `${file} ${language} ${width}x${height}`;
@@ -41,6 +99,8 @@ async function main() {
         if (await page.locator('html').getAttribute('lang') !== language) await page.locator(LANGUAGE).click();
         assert.equal((await page.locator('[data-i18n="local"]').textContent()).trim(), language === 'en' ? 'Fully local processing' : '完全ローカル処理', label + ': privacy wording');
         assert.equal(await page.locator('body > footer').isVisible(), width > PHONE_WIDTH, label + ': informational footer breakpoint');
+        assert.equal(await page.locator('#heroTitle').isVisible(), width > PHONE_WIDTH, label + ': hero title visible on desktop only');
+        assert.equal(await page.locator('#pageIntro').isVisible(), true, label + ': intro description available before import');
         await exerciseActions(page, width, label);
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), label + ': page width');
         // Responsive changes must not leave the informational footer in a stale state.
@@ -50,6 +110,10 @@ async function main() {
         assert.equal(await page.locator('body > footer').isVisible(), false, label + ': phone resize');
         await page.setViewportSize({width,height});
         if (file === 'dist/index.html' && [1360,320].includes(width)) await page.screenshot({path:path.join(artifacts, `${language}-${width}.png`), fullPage:true});
+
+        if (file === 'dist/index.html' && ((language === 'ja' && width === 1360) || (language === 'en' && width === 320))) {
+          await verifyNativeWavRoundTrip(page, label, width);
+        }
 
         await page.locator(HELP).click();
         const body = page.locator('#helpDialog .dialog-body');

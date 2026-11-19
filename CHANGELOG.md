@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 1.0.5 - 2026-11-19
+
+- Prevent stale asynchronous clip selection and sequence playback operations from updating the active UI.
+- Reduce export decoding memory duplication, include waveform tail samples, and enforce the classic WAV size limit.
+- Simplify the Japanese/English hero and Help copy; hide the local-processing badge on phones.
+- Align HTML and Japanese/English README license notices with GPL-3.0 for the application and LGPL-3.0 for embedded lamejs.
+- Automate versioned Git tag and GitHub Release creation after PR merge.
+
 - Hide the informational footer at phone widths while preserving action controls and the wider-screen footer.
 
 ## 1.0.4 - 2026-10-10

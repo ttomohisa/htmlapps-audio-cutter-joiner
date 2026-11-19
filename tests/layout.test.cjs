@@ -7,7 +7,7 @@ const { loadApp } = require('./helpers/app-harness.cjs');
 const style = () => loadApp().html.match(/<style>([\s\S]*?)<\/style>/)[1];
 function declarations(css, selector) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = css.match(new RegExp(`(?:^|[{}])\\s*${escaped}\\s*\\{([^{}]*)\\}`));
+  const match = css.replace(/\/\*[\s\S]*?\*\//g, '').match(new RegExp(`(?:^|[{}])\\s*${escaped}\\s*\\{([^{}]*)\\}`));
   assert.ok(match, `Missing CSS rule: ${selector}`);
   return Object.fromEntries(match[1].split(';').filter(value => value.trim()).map(value => {
     const colon = value.indexOf(':');
@@ -84,16 +84,58 @@ test('local-processing badge uses a decorative shield without changing its bilin
   assert.equal(h.app.I18N.en.local, 'Fully local processing');
 });
 
-test('Help explains its independent scrolling in both languages', () => {
-  const h = loadApp();
-  assert.match(h.html, /<p data-i18n="helpScroll">[^<]+<\/p>/);
-  for (const language of ['ja', 'en']) {
-    h.app.applyLanguage(language);
-    const text = h.i18nElements.find(el => el.dataset.i18n === 'helpScroll')?.textContent;
-    assert.ok(text && text !== 'helpScroll', `Help scroll guidance is translated: ${language}`);
-    assert.equal(text, h.app.I18N[language].helpScroll);
-  }
-  assert.notEqual(h.app.I18N.ja.helpScroll, h.app.I18N.en.helpScroll);
+test('phone hides the informational local-processing badge while desktop retains it', () => {
+  const css = style();
+  assert.equal(declarations(css, '.local-badge').display, 'inline-flex');
+  assert.equal(declarations(media(css, 'max-width: 720px'), '.local-badge').display, 'none');
+});
+
+test('phone shows only intro description before import and hides intro while clips exist', async () => {
+  const css = style(), phone = media(css, 'max-width: 720px');
+  assert.equal(declarations(phone, '.page-intro h2').display, 'none');
+  assert.equal(declarations(phone, '.page-intro.has-clips').display, 'none');
+  assert.equal(declarations(css, '.page-intro').display, 'flex', 'desktop introduction stays visible');
+
+  const h = loadApp({ width: 320 });
+  assert.equal(h.app.els.pageIntro.classList.contains('has-clips'), false);
+  await h.app.addFiles([h.file('test.wav')]);
+  assert.equal(h.app.els.pageIntro.classList.contains('has-clips'), true);
+  const [clip] = h.app.state.clips;
+  h.app.removeClip(clip.id);
+  assert.equal(h.app.els.pageIntro.classList.contains('has-clips'), false, 'last file removal restores intro');
+  await h.app.undoLast();
+  assert.equal(h.app.els.pageIntro.classList.contains('has-clips'), true, 'Undo restores loaded state');
+});
+
+test('phone uses one content panel and separates secondary tools without nested cards', () => {
+  const phone = media(style(), 'max-width: 720px');
+  const workspace = declarations(phone, '.workspace');
+  assert.equal(workspace.border, '0');
+  assert.equal(workspace['box-shadow'], 'none');
+  assert.equal(workspace.background, 'transparent');
+  assert.equal(workspace.padding, '0');
+  assert.equal(declarations(phone, '.workspace-head').display, 'none');
+  const sequence = declarations(phone, '.sequence-panel');
+  assert.equal(sequence.border, '0');
+  assert.equal(sequence['border-top'], '1px solid var(--line)');
+  assert.equal(sequence.background, 'transparent');
+  const trim = declarations(phone, '.trim-panel');
+  assert.equal(trim.border, '0');
+  assert.equal(trim['border-top'], '1px solid var(--line)');
+  assert.equal(declarations(phone, '.info-cell').background, 'transparent');
+  assert.ok(declarations(style(), '.app-pane').border, 'The remaining main panel provides a boundary');
+  assert.ok(declarations(style(), '.clip-item.is-selected').background, 'Selected clip remains clear');
+});
+
+test('phone editor header has an accessible upward-scroll reveal rule', () => {
+  const css = style(), phone = media(css, 'max-width: 720px');
+  assert.equal(declarations(css, '.app-header').position, 'sticky');
+  assert.equal(declarations(phone, '.app-header.is-scroll-hidden').transform, 'translateY(calc(-100% - 1px))');
+  assert.equal(declarations(phone, '.app-header.is-scroll-hidden')['pointer-events'], 'none');
+  const html = loadApp().html;
+  assert.match(html, /id="appHeader"/);
+  assert.match(html, /window\.addEventListener\('scroll',trackMobileHeader,\{passive:true\}\)/);
+  assert.match(html, /els\.appHeader\.addEventListener\('focusin',showMobileHeader\)/);
 });
 
 test('canonical repository check includes layout regressions for every shipped representation', () => {
