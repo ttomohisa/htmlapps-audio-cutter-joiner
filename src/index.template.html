@@ -251,6 +251,8 @@
       footer { display: none; }
       :root { --header-height: 58px; }
       html { scroll-padding-top: calc(var(--header-height) + 12px); scroll-padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+      .app-header { transition: transform .2s ease-out; }
+      .app-header.is-scroll-hidden { transform: translateY(calc(-100% - 1px)); pointer-events: none; }
       .header-inner { padding-block: 8px; }
       .brand-mark { width: 34px; height: 34px; border-radius:25%; }
       .brand-name { font-size: 15px; }
@@ -262,8 +264,14 @@
       .page-intro h2 { display: none; }
       .page-intro.has-clips { display: none; }
       .local-badge { display: none; }
-      .workspace { padding: 14px; border-radius: 14px; }
-      .workspace-head { align-items: stretch; flex-direction: column; }
+      /* One main panel instead of a card nested inside another card. */
+      .workspace { margin-bottom: 20px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+      .workspace-head { display: none; }
+      .app-pane { border-radius: 13px; }
+      /* Dividers separate secondary actions without framing every group. */
+      .sequence-panel { margin-top: 16px; padding: 15px 0 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: transparent; }
+      .trim-panel { padding: 15px 0 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: transparent; }
+      .info-cell { padding: 9px 0 4px; border-radius: 0; border-top: 1px solid var(--line); background: transparent; }
       .workspace-columns { display: block; }
       .workspace-columns > .app-pane, .workspace > .export-pane { display: none; }
       .workspace-columns > .app-pane.is-mobile-active, .workspace > .export-pane.is-mobile-active { display: block; }
@@ -341,7 +349,7 @@
     <symbol id="i-export" viewBox="0 0 24 24"><path d="M5 4h9l5 5v11H5z"/><path d="M14 4v5h5M9 14h6M12 11v6"/></symbol>
   </defs></svg>
 
-  <header class="app-header">
+  <header class="app-header" id="appHeader">
     <div class="header-inner">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
@@ -579,7 +587,7 @@
     };
     const $=id=>document.getElementById(id);
     const els={
-      fileInput:$('fileInput'),dropZone:$('dropZone'),pageIntro:$('pageIntro'),clipArea:$('clipArea'),clipList:$('clipList'),clipCount:$('clipCount'),addButton:$('addButton'),
+      fileInput:$('fileInput'),dropZone:$('dropZone'),appHeader:$('appHeader'),pageIntro:$('pageIntro'),clipArea:$('clipArea'),clipList:$('clipList'),clipCount:$('clipCount'),addButton:$('addButton'),
       sequenceSummary:$('sequenceSummary'),previewAllButton:$('previewAllButton'),previewAllLabel:$('previewAllLabel'),previewAllIcon:$('previewAllIcon'),
       editorEmpty:$('editorEmpty'),editorShell:$('editorShell'),currentName:$('currentName'),currentMeta:$('currentMeta'),analysisState:$('analysisState'),waveCanvas:$('waveCanvas'),waveOverlay:$('waveOverlay'),waveError:$('waveError'),waveErrorText:$('waveErrorText'),
       audio:$('audio'),sequenceAudio:$('sequenceAudio'),playButton:$('playButton'),playUse:$('playUse'),stopButton:$('stopButton'),seekRange:$('seekRange'),currentTime:$('currentTime'),durationTime:$('durationTime'),trimStartInput:$('trimStartInput'),trimEndInput:$('trimEndInput'),trimLength:$('trimLength'),setStartButton:$('setStartButton'),setEndButton:$('setEndButton'),resetTrimButton:$('resetTrimButton'),previewSelectionButton:$('previewSelectionButton'),previewJunctionButton:$('previewJunctionButton'),splitButton:$('splitButton'),splitPosition:$('splitPosition'),
@@ -638,7 +646,16 @@
       if(action.type==='trim'){const clip=clipById(action.clipId);if(!clip)return;invalidateExportResult();restoreSnapshot(clip,action.before);renderClips();renderSelectedMeta();setAudioToRangeStart(clip);drawWaveform();showToast(t('undoTrim'));restoreFocus();return;}
       if(action.type==='reorder'){invalidateExportResult();reorderFromIds(action.beforeIds);renderClips();renderSelectedMeta();showToast(t('undoReorder'));restoreFocus();}
     }
-    function setMobilePage(page){const active=document.activeElement,focus=clipFocusTarget();state.mobilePage=page;els.clipsCard.classList.toggle('is-mobile-active',page==='clips');els.editorCard.classList.toggle('is-mobile-active',page==='editor');els.exportCard.classList.toggle('is-mobile-active',page==='export');document.querySelectorAll('.mobile-tab').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.pageTarget===page));if(page==='editor')requestAnimationFrame(drawWaveform);if(page==='export')renderExportUi();if(focus&&!active.getClientRects().length)restoreClipFocus(focus);}
+    let headerScrollAnchor=0;
+    function showMobileHeader(){els.appHeader.classList.remove('is-scroll-hidden');headerScrollAnchor=Math.max(0,Number(window.scrollY)||0);}
+    function trackMobileHeader(){
+      const y=Math.max(0,Number(window.scrollY)||0);
+      if(innerWidth>720||state.mobilePage!=='editor'||document.querySelector('dialog[open]')||y<=24){showMobileHeader();return;}
+      const delta=y-headerScrollAnchor;
+      if(delta>12){els.appHeader.classList.add('is-scroll-hidden');headerScrollAnchor=y;}
+      else if(delta< -12){showMobileHeader();}
+    }
+    function setMobilePage(page){const active=document.activeElement,focus=clipFocusTarget();state.mobilePage=page;showMobileHeader();els.clipsCard.classList.toggle('is-mobile-active',page==='clips');els.editorCard.classList.toggle('is-mobile-active',page==='editor');els.exportCard.classList.toggle('is-mobile-active',page==='export');document.querySelectorAll('.mobile-tab').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.pageTarget===page));if(page==='editor')requestAnimationFrame(drawWaveform);if(page==='export')renderExportUi();if(focus&&!active.getClientRects().length)restoreClipFocus(focus);}
     function renderSequenceSummary(){
       const count=state.clips.length,total=totalKeptDuration();
       if(state.sequencePlaying&&state.sequenceMode==='all'){const segment=state.sequenceSegments[state.sequenceIndex],clip=segment?clipById(segment.clipId):null;els.sequenceSummary.innerHTML='';const span=document.createElement('span');span.className='sequence-status';span.textContent=t('sequencePlaying',{current:Math.min(state.sequenceIndex+1,state.sequenceSegments.length),count:state.sequenceSegments.length,name:clip?clipDisplayName(clip):''});els.sequenceSummary.append(span);return;}
@@ -819,7 +836,9 @@
     els.languageButton.addEventListener('click',()=>applyLanguage(state.lang==='ja'?'en':'ja'));
     els.helpButton.addEventListener('click',()=>els.helpDialog.showModal());els.helpClose.addEventListener('click',()=>els.helpDialog.close());els.helpDialog.addEventListener('click',e=>{if(e.target===els.helpDialog)els.helpDialog.close();});
     document.querySelectorAll('.mobile-tab').forEach(btn=>btn.addEventListener('click',()=>setMobilePage(btn.dataset.pageTarget)));
-    window.addEventListener('resize',()=>requestAnimationFrame(drawWaveform));
+    window.addEventListener('scroll',trackMobileHeader,{passive:true});
+    els.appHeader.addEventListener('focusin',showMobileHeader);
+    window.addEventListener('resize',()=>{showMobileHeader();requestAnimationFrame(drawWaveform);});
     document.addEventListener('keydown',e=>{const target=e.target;if(target&&['INPUT','TEXTAREA','SELECT','BUTTON'].includes(target.tagName))return;const clip=clipById(state.selectedId);if(e.code==='Space'){e.preventDefault();togglePlay();}else if(e.key==='ArrowLeft'&&clip){e.preventDefault();stopSequence();els.audio.currentTime=Math.max(baseStart(clip),(els.audio.currentTime||baseStart(clip))-5);updatePlayback();}else if(e.key==='ArrowRight'&&clip){e.preventDefault();stopSequence();els.audio.currentTime=Math.min(baseEnd(clip),(els.audio.currentTime||baseStart(clip))+5);updatePlayback();}});
     window.addEventListener('beforeunload',()=>{releaseCurrentUrl();releaseSequenceUrl();invalidateExportResult();});
     state.lang=chooseInitialLanguage();applyLanguage(state.lang);clearEditor();setMobilePage('clips');updateSequenceUi();renderExportUi();checkM4aSupport();
