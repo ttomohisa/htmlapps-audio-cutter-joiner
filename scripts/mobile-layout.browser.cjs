@@ -38,6 +38,7 @@ function syntheticWav() {
 async function verifyNativeWavRoundTrip(page, label, width) {
   await page.locator('#fileInput').setInputFiles({ name: 'test-tone.wav', mimeType: 'audio/wav', buffer: syntheticWav() });
   await page.locator('#editorShell').waitFor({ state: 'visible', timeout: 15000 });
+  assert.equal(await page.locator('#pageIntro').isVisible(), width > PHONE_WIDTH, label + ': intro after file import');
   if (width <= PHONE_WIDTH) await page.locator('.mobile-tab[data-page-target="export"]').click();
   await page.locator('#outputFormatSelect').selectOption('wav');
   await page.locator('#exportButton').click();
@@ -52,6 +53,11 @@ async function verifyNativeWavRoundTrip(page, label, width) {
   assert.equal(bytes.toString('ascii', 8, 12), 'WAVE', label + ': WAV container');
   assert.ok(bytes.length > 44, label + ': WAV contains audio samples');
   assert.equal(bytes.readUInt32LE(40), bytes.length - 44, label + ': valid PCM payload length');
+  if (width <= PHONE_WIDTH) {
+    await page.locator('.mobile-tab[data-page-target="clips"]').click();
+    await page.locator('.clip-action.remove').first().click();
+    assert.equal(await page.locator('#pageIntro').isVisible(), true, label + ': intro restored after removing final clip');
+  }
 }
 
 async function main() {
@@ -79,6 +85,8 @@ async function main() {
         if (await page.locator('html').getAttribute('lang') !== language) await page.locator(LANGUAGE).click();
         assert.equal((await page.locator('[data-i18n="local"]').textContent()).trim(), language === 'en' ? 'Fully local processing' : '完全ローカル処理', label + ': privacy wording');
         assert.equal(await page.locator('body > footer').isVisible(), width > PHONE_WIDTH, label + ': informational footer breakpoint');
+        assert.equal(await page.locator('#heroTitle').isVisible(), width > PHONE_WIDTH, label + ': hero title visible on desktop only');
+        assert.equal(await page.locator('#pageIntro').isVisible(), true, label + ': intro description available before import');
         await exerciseActions(page, width, label);
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), label + ': page width');
         // Responsive changes must not leave the informational footer in a stale state.
