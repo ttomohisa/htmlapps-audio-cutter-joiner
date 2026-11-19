@@ -7,7 +7,7 @@ const { loadApp } = require('./helpers/app-harness.cjs');
 const style = () => loadApp().html.match(/<style>([\s\S]*?)<\/style>/)[1];
 function declarations(css, selector) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = css.match(new RegExp(`(?:^|[{}])\\s*${escaped}\\s*\\{([^{}]*)\\}`));
+  const match = css.replace(/\/\*[\s\S]*?\*\//g, '').match(new RegExp(`(?:^|[{}])\\s*${escaped}\\s*\\{([^{}]*)\\}`));
   assert.ok(match, `Missing CSS rule: ${selector}`);
   return Object.fromEntries(match[1].split(';').filter(value => value.trim()).map(value => {
     const colon = value.indexOf(':');
