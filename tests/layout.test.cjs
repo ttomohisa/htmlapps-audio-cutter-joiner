@@ -90,6 +90,23 @@ test('phone hides the informational local-processing badge while desktop retains
   assert.equal(declarations(media(css, 'max-width: 720px'), '.local-badge').display, 'none');
 });
 
+test('phone shows only intro description before import and hides intro while clips exist', async () => {
+  const css = style(), phone = media(css, 'max-width: 720px');
+  assert.equal(declarations(phone, '.page-intro h2').display, 'none');
+  assert.equal(declarations(phone, '.page-intro.has-clips').display, 'none');
+  assert.equal(declarations(css, '.page-intro').display, 'flex', 'desktop introduction stays visible');
+
+  const h = loadApp({ width: 320 });
+  assert.equal(h.app.els.pageIntro.classList.contains('has-clips'), false);
+  await h.app.addFiles([h.file('test.wav')]);
+  assert.equal(h.app.els.pageIntro.classList.contains('has-clips'), true);
+  const [clip] = h.app.state.clips;
+  h.app.removeClip(clip.id);
+  assert.equal(h.app.els.pageIntro.classList.contains('has-clips'), false, 'last file removal restores intro');
+  await h.app.undoLast();
+  assert.equal(h.app.els.pageIntro.classList.contains('has-clips'), true, 'Undo restores loaded state');
+});
+
 test('canonical repository check includes layout regressions for every shipped representation', () => {
   const fs = require('node:fs');
   const path = require('node:path');
