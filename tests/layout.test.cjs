@@ -107,6 +107,37 @@ test('phone shows only intro description before import and hides intro while cli
   assert.equal(h.app.els.pageIntro.classList.contains('has-clips'), true, 'Undo restores loaded state');
 });
 
+test('phone uses one content panel and separates secondary tools without nested cards', () => {
+  const phone = media(style(), 'max-width: 720px');
+  const workspace = declarations(phone, '.workspace');
+  assert.equal(workspace.border, '0');
+  assert.equal(workspace['box-shadow'], 'none');
+  assert.equal(workspace.background, 'transparent');
+  assert.equal(workspace.padding, '0');
+  assert.equal(declarations(phone, '.workspace-head').display, 'none');
+  const sequence = declarations(phone, '.sequence-panel');
+  assert.equal(sequence.border, '0');
+  assert.equal(sequence['border-top'], '1px solid var(--line)');
+  assert.equal(sequence.background, 'transparent');
+  const trim = declarations(phone, '.trim-panel');
+  assert.equal(trim.border, '0');
+  assert.equal(trim['border-top'], '1px solid var(--line)');
+  assert.equal(declarations(phone, '.info-cell').background, 'transparent');
+  assert.ok(declarations(style(), '.app-pane').border, 'The remaining main panel provides a boundary');
+  assert.ok(declarations(style(), '.clip-item.is-selected').background, 'Selected clip remains clear');
+});
+
+test('phone editor header has an accessible upward-scroll reveal rule', () => {
+  const css = style(), phone = media(css, 'max-width: 720px');
+  assert.equal(declarations(css, '.app-header').position, 'sticky');
+  assert.equal(declarations(phone, '.app-header.is-scroll-hidden').transform, 'translateY(calc(-100% - 1px))');
+  assert.equal(declarations(phone, '.app-header.is-scroll-hidden')['pointer-events'], 'none');
+  const html = loadApp().html;
+  assert.match(html, /id="appHeader"/);
+  assert.match(html, /window\.addEventListener\('scroll',trackMobileHeader,\{passive:true\}\)/);
+  assert.match(html, /els\.appHeader\.addEventListener\('focusin',showMobileHeader\)/);
+});
+
 test('canonical repository check includes layout regressions for every shipped representation', () => {
   const fs = require('node:fs');
   const path = require('node:path');
