@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#f5f5f2">
   <meta name="description" content="音声をカット・分割・並べ替えし、複数クリップを連続試聴できる完全ローカル処理のブラウザアプリです。">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: blob:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CjxyZWN0IHg9IjIuNjciIHk9IjIuNjciIHdpZHRoPSI1OC42NiIgaGVpZ2h0PSI1OC42NiIgcng9IjE0LjY2NSIgZmlsbD0iIzE2NjI0ZiIvPgo8ZyBmaWxsPSJub25lIiBzdHJva2U9IiNmY2ZjZmMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+CjxwYXRoIHN0cm9rZS13aWR0aD0iMi4zIiBkPSJNNy41NSAyOS4wNXYyLjk1bTMuMTUtNS40NXY4bTMuMy0xMXYxMy4wNW05Ljc1LTEyLjA1djExLjdtMjEuMS0xMC4wNXY4LjY1bTMuNS0xMy4yNXYxNy4ybTMuNC0xMi42djguOSIvPgo8cGF0aCBzdHJva2Utd2lkdGg9IjEuNTUiIGQ9Ik0xOC40IDE5LjQ1djIuMjVtMCAxLjY1djIuMjVtMCAxLjY1djIuMm0wIDEuNjV2Mi4ybTAgMS42NXYyLjRNMjEgMjh2NS42bTUuNy01LjY1djYuMjVtMi42LTQuNTV2Mi4zNW0xMi40LTIuMzVWMzJtMTMuMS00djUuNm0yLjctMy45NVYzMiIvPgo8cGF0aCBzdHJva2Utd2lkdGg9IjEuNiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgZD0iTTMzLjA1IDMxLjI1aDQuNDVtLTEuNDUtMi4xNSAyLjE1IDIuMTUtMi4xNSAyLjE1Ii8+CjxwYXRoIHN0cm9rZS13aWR0aD0iLjgiIGQ9Im0xNS4zNSAzOS4wNSA1LjggNy4wNW0uMi03LjA1LTUuOCA3LjA1Ii8+CjxjaXJjbGUgY3g9IjE1LjA1IiBjeT0iNDYuMyIgcj0iMS4xNSIgc3Ryb2tlLXdpZHRoPSIuNyIvPgo8Y2lyY2xlIGN4PSIyMS4zNSIgY3k9IjQ2LjMiIHI9IjEuMTUiIHN0cm9rZS13aWR0aD0iLjciLz4KPC9nPgo8L3N2Zz4K">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjIuNjI1IDIuNjI1IDU4Ljc1IDU4Ljc1IiB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgo8cmVjdCB4PSIyLjY3IiB5PSIyLjY3IiB3aWR0aD0iNTguNjYiIGhlaWdodD0iNTguNjYiIHJ4PSIxNC42NjUiIGZpbGw9IiMxNjYyNGYiLz4KPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmNmY2ZjIiBzdHJva2UtbGluZWNhcD0icm91bmQiPgo8cGF0aCBzdHJva2Utd2lkdGg9IjIuMyIgZD0iTTcuNTUgMjkuMDV2Mi45NW0zLjE1LTUuNDV2OG0zLjMtMTF2MTMuMDVtOS43NS0xMi4wNXYxMS43bTIxLjEtMTAuMDV2OC42NW0zLjUtMTMuMjV2MTcuMm0zLjQtMTIuNnY4LjkiLz4KPHBhdGggc3Ryb2tlLXdpZHRoPSIxLjU1IiBkPSJNMTguNCAxOS40NXYyLjI1bTAgMS42NXYyLjI1bTAgMS42NXYyLjJtMCAxLjY1djIuMm0wIDEuNjV2Mi40TTIxIDI4djUuNm01LjctNS42NXY2LjI1bTIuNi00LjU1djIuMzVtMTIuNC0yLjM1VjMybTEzLjEtNHY1LjZtMi43LTMuOTVWMzIiLz4KPHBhdGggc3Ryb2tlLXdpZHRoPSIxLjYiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Ik0zMy4wNSAzMS4yNWg0LjQ1bS0xLjQ1LTIuMTUgMi4xNSAyLjE1LTIuMTUgMi4xNSIvPgo8cGF0aCBzdHJva2Utd2lkdGg9Ii44IiBkPSJtMTUuMzUgMzkuMDUgNS44IDcuMDVtLjItNy4wNS01LjggNy4wNSIvPgo8Y2lyY2xlIGN4PSIxNS4wNSIgY3k9IjQ2LjMiIHI9IjEuMTUiIHN0cm9rZS13aWR0aD0iLjciLz4KPGNpcmNsZSBjeD0iMjEuMzUiIGN5PSI0Ni4zIiByPSIxLjE1IiBzdHJva2Utd2lkdGg9Ii43Ii8+CjwvZz4KPC9zdmc+Cg==">
   <title>音声カット・結合</title>
   <style>
     :root {
@@ -353,7 +353,7 @@
     <div class="header-inner">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="2.625 2.625 58.75 58.75" width="48" height="48" preserveAspectRatio="none">
 <rect x="2.67" y="2.67" width="58.66" height="58.66" rx="14.665" fill="#16624f"/>
 <g fill="none" stroke="#fcfcfc" stroke-linecap="round">
 <path stroke-width="2.3" d="M7.55 29.05v2.95m3.15-5.45v8m3.3-11v13.05m9.75-12.05v11.7m21.1-10.05v8.65m3.5-13.25v17.2m3.4-12.6v8.9"/>
